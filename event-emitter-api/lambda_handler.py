@@ -1,49 +1,62 @@
 import json
+import logging
 import os
+from typing import Callable, NamedTuple
 
 import boto3
 
-sns = boto3.client('sns')
+from api_responses import FAILED_TO_PUBLISH_TO_SNS_RESPONSE, SUCCESS_RESPONSE, INVALID_ENDPOINT_RESPONSE
+from validator import validate_request, validate_create_purchase_order_payload, validate_create_sales_order_payload, \
+    ValidationResult, validate_create_product_payload
 
-TOPIC_ARN = os.environ['TOPIC_ARN']
+
+class EventConfig(NamedTuple):
+    subject: str
+    validator: Callable[[str], ValidationResult]
+
+
+PATH_CONFIG_MAP = {
+    '/purchase-orders': EventConfig('NEW_PURCHASE_ORDER_SCHEDULED', validate_create_purchase_order_payload),
+    '/sales-orders': EventConfig('NEW_SALES_ORDER_SCHEDULED', validate_create_sales_order_payload),
+    '/product': EventConfig('NEW_PRODUCT_SCHEDULED', validate_create_product_payload)
+}
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
 def lambda_handler(event, context):
-    http_method = event.get("httpMethod", "")
+    logger.info("Starting lambda_handler")
+    logger.info(f"Event: {event}")
+    sns = boto3.client('sns')
+    topic_arn = os.environ.get('TOPIC_ARN')
+    if not topic_arn:
+        raise ValueError("TOPIC_ARN environment variable not set")
 
-    if http_method != "POST":
-        return {
-            'statusCode': 400,
-            'body': json.dumps({'message': 'Invalid request method'})
-        }
-    path = event['path']
-    if path == '/purchase-orders':
-        subject = 'NEW_PURCHASE_ORDER_SCHEDULED'
-    elif path == '/sales-orders':
-        subject = 'NEW_SALES_ORDER_SCHEDULED'
-    elif path == '/product':
-        subject = 'NEW_PRODUCT_SCHEDULED'
-    else:
-        return {
-            'statusCode': 400,
-            'body': json.dumps({'message': 'Invalid endpoint'})
-        }
+    logger.info(f"Received event: {event}")
+    validation_result = validate_request(event)
+    if not validation_result:
+        return validation_result.response
 
+    path = event.get('path')
+    event_config = PATH_CONFIG_MAP.get(path)
+
+    if not event_config:
+        return INVALID_ENDPOINT_RESPONSE
+    is_event_valid_result = event_config.validator(event['body'])
+    if not is_event_valid_result:
+        return is_event_valid_result.response
+    logger.info(f"Event is valid: {is_event_valid_result}")
+    request_data = json.loads(event['body'])
+    logger.info(f"Publishing to SNS:{event_config}: {request_data}")
     try:
-        request_data = json.loads(event['body'])
-    except json.JSONDecodeError:
-        return {
-            'statusCode': 400,
-            'body': json.dumps({'message': 'Invalid JSON payload'})
-        }
-
-    sns.publish(
-        TopicArn=TOPIC_ARN,
-        Message=json.dumps(request_data),
-        Subject=subject
-    )
-
-    return {
-        'statusCode': 200,
-        'body': json.dumps({'message': f'Event {subject} published to SNS'})
-    }
+        sns.publish(
+            TopicArn=topic_arn,
+            Message=json.dumps(request_data),
+            Subject=event_config.subject
+        )
+    except Exception as e:
+        logger.error(f"Error publishing to SNS: {e}")
+        return FAILED_TO_PUBLISH_TO_SNS_RESPONSE
+    logger.info(f"Published to SNS:{event_config}: {request_data}")
+    return SUCCESS_RESPONSE
