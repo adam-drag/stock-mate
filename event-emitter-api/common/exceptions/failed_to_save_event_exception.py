@@ -1,0 +1,2 @@
+class FailedToSaveEventException(Exception):
+    pass

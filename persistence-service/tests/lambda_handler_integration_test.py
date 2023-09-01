@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import patch, ANY
 
 from lambda_handler import lambda_handler
-from models.models import ProductToPersist, CustomerToPersist, SupplierToPersist
+from models.models import Product, Customer, Supplier
 from utils.component_provider import ComponentProvider
 
 
@@ -48,7 +48,7 @@ class LambdaHandlerIntegrationTest(unittest.TestCase):
         result = lambda_handler(event, context)
 
         # Assert
-        expected_product_to_persist = ProductToPersist(
+        expected_product_to_persist = Product(
             id=ANY,  # Here, you'd use ANY or some other way to deal with the dynamically generated ID
             name='TestProduct',
             description='TestDescription',
@@ -80,7 +80,7 @@ class LambdaHandlerIntegrationTest(unittest.TestCase):
 
         result = lambda_handler(event, context)
 
-        expected_supplier_to_persist = SupplierToPersist(
+        expected_supplier_to_persist = Supplier(
             id=ANY,
             name='TestSupplier'
         )
@@ -108,7 +108,7 @@ class LambdaHandlerIntegrationTest(unittest.TestCase):
 
         result = lambda_handler(event, context)
 
-        expected_customer_to_persist = CustomerToPersist(
+        expected_customer_to_persist = Customer(
             id=ANY,
             name='TestCustomer'
         )

@@ -1,0 +1,2 @@
+class FailedToRetrieveEventException(Exception):
+    pass

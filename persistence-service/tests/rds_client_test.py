@@ -3,7 +3,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 
 from clients.rds_client import RdsClient
-from models.models import ProductToPersist, SupplierToPersist, CustomerToPersist
+from models.models import Product, Supplier, Customer
 
 
 @patch.dict(os.environ, {
@@ -34,8 +34,8 @@ class TestRdsClient(unittest.TestCase):
 
         client = RdsClient()
         client.connection_pool = mock_pool
-        product = ProductToPersist(id='prod_123', name='TestProduct', description='Desc',
-                                   safety_stock=10, max_stock=50, quantity=30)
+        product = Product(id='prod_123', name='TestProduct', description='Desc',
+                          safety_stock=10, max_stock=50, quantity=30)
 
         client.insert_product(product)
 
@@ -51,7 +51,7 @@ class TestRdsClient(unittest.TestCase):
 
         client = RdsClient()
         client.connection_pool = mock_pool
-        supplier = SupplierToPersist(id='sup_123', name='TestSupplier')
+        supplier = Supplier(id='sup_123', name='TestSupplier')
 
         client.insert_supplier(supplier)
 
@@ -67,7 +67,7 @@ class TestRdsClient(unittest.TestCase):
 
         client = RdsClient()
         client.connection_pool = mock_pool
-        customer = CustomerToPersist(id='cus_123', name='TestCustomer')
+        customer = Customer(id='cus_123', name='TestCustomer')
 
         client.insert_customer(customer)
 
@@ -84,8 +84,8 @@ class TestRdsClient(unittest.TestCase):
 
         client = RdsClient()
         client.connection_pool = mock_pool
-        product = ProductToPersist(id='prod_123', name='TestProduct', description='Desc',
-                                   safety_stock=10, max_stock=50, quantity=30)
+        product = Product(id='prod_123', name='TestProduct', description='Desc',
+                          safety_stock=10, max_stock=50, quantity=30)
 
         with self.assertRaises(Exception):
             client.insert_product(product)

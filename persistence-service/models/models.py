@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class IncomingProduct:
+class ProductDto:
     name: str
     description: str
     safety_stock: int
@@ -11,25 +11,25 @@ class IncomingProduct:
 
 
 @dataclass
-class ProductToPersist(IncomingProduct):
+class Product(ProductDto):
     id: str
 
 
 @dataclass
-class IncomingSupplier:
+class SupplierDto:
     name: str
 
 
 @dataclass
-class SupplierToPersist(IncomingSupplier):
+class Supplier(SupplierDto):
     id: str
 
 
 @dataclass
-class IncomingCustomer:
+class CustomerDto:
     name: str
 
 
 @dataclass
-class CustomerToPersist(IncomingCustomer):
+class Customer(CustomerDto):
     id: str
