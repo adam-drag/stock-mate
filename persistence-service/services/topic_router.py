@@ -1,7 +1,8 @@
 import json
 import logging
 
-from models.models import ProductDto, CustomerDto, SupplierDto, Product
+from common.events.events import EventType
+from models.models import ProductDto, CustomerDto, SupplierDto, Product, Supplier, Customer
 from services.persistence_service import PersistenceService
 from services.sns_dispatcher import SnsDispatcher
 
@@ -14,23 +15,25 @@ class TopicRouter:
         self.persistence_service = persistence_service
         self.sns_dispatcher = sns_dispatcher
         self.topic_to_handler = {
-            'NewProductTopic': self.handle_new_product,
-            'NewSupplierTopic': self.handle_new_supplier,
-            'NewCustomerTopic': self.handle_new_customer,
+            EventType.NewProductScheduled.name: self.handle_new_product,
+            EventType.NewSupplierScheduled.name: self.handle_new_supplier,
+            EventType.NewCustomerScheduled.name: self.handle_new_customer,
         }
 
     def handle_new_product(self, sns_message):
         incoming_product = ProductDto(**sns_message)
         product: Product = self.persistence_service.persist_product(incoming_product)
-        self.sns_dispatcher.dispatch(product.__dict__, 'NewProductDispatched')
+        self.sns_dispatcher.dispatch(product.__dict__, EventType.NewProductPersisted)
 
     def handle_new_supplier(self, sns_message):
         incoming_supplier = SupplierDto(**sns_message)
-        self.persistence_service.persist_supplier(incoming_supplier)
+        supplier: Supplier = self.persistence_service.persist_supplier(incoming_supplier)
+        self.sns_dispatcher.dispatch(supplier.__dict__, EventType.NewSupplierPersisted)
 
     def handle_new_customer(self, sns_message):
         incoming_customer = CustomerDto(**sns_message)
-        self.persistence_service.persist_customer(incoming_customer)
+        customer: Customer = self.persistence_service.persist_customer(incoming_customer)
+        self.sns_dispatcher.dispatch(customer.__dict__, EventType.NewCustomerPersisted)
 
     def route(self, event):
         for record in event['Records']:

@@ -16,6 +16,14 @@ class Product(ProductDto):
 
 
 @dataclass
+class Supplier(ProductDto):
+    id: str
+
+@dataclass
+class Customer(ProductDto):
+    id: str
+
+@dataclass
 class SupplierDto:
     name: str
 

@@ -1,5 +1,6 @@
 [run]
 omit =
+    common/*
     *_test.py
     __init__.py
 

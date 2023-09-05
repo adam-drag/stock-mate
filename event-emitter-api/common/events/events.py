@@ -21,6 +21,12 @@ class EventType(Enum):
     NewProductScheduled = auto()
     NewProductPersisted = auto()
 
+    NewSupplierScheduled = auto()
+    NewSupplierPersisted = auto()
+
+    NewCustomerScheduled = auto()
+    NewCustomerPersisted = auto()
+
 
 class EventStatus(Enum):
     Pending = auto()

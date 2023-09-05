@@ -19,7 +19,7 @@ class EventManager:
                 "INSERT INTO events (event_id, event_type, emitter, payload, created_at) "
                 "VALUES (%s, %s, %s, %s, %s)"
             )
-            params = (event_id, event_type.name, emitter, payload, datetime.now())
+            params = (event_id, event_type, emitter, payload, datetime.now())
             self.rds_client.execute(insert_query, params)
         except Exception as e:
             logging.error(f"Failed to insert event: {e}")

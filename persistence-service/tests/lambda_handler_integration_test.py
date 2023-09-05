@@ -3,6 +3,9 @@ import os
 import unittest
 from unittest.mock import patch, ANY
 
+from moto import mock_sns
+
+from common.events.events import EventType
 from lambda_handler import lambda_handler
 from models.models import Product, Customer, Supplier
 from utils.component_provider import ComponentProvider
@@ -14,15 +17,17 @@ from utils.component_provider import ComponentProvider
     'DB_USER': 'test_user',
     'DB_PASSWORD': 'test_password'
 })
+@mock_sns
 class LambdaHandlerIntegrationTest(unittest.TestCase):
 
     def tearDown(self):
         ComponentProvider._persistence_service = None
         ComponentProvider._topic_router = None
 
-    @patch('utils.component_provider.ComponentProvider.get_rds_client')
-    @patch('clients.rds_client.RdsClient')
-    def test_lambda_handler_integration(self, mock_rds_client, mock_get_rds_client):
+    @patch('utils.component_provider.ComponentProvider.get_rds_domain_client')
+    @patch('clients.rds_domain_client.RdsDomainClient')
+    @patch("boto3.client")
+    def test_lambda_handler_integration(self, boto_mock, mock_rds_client, mock_get_rds_client):
         mock_get_rds_client.return_value = mock_rds_client
 
         mock_insert_product = mock_rds_client.insert_product
@@ -38,7 +43,7 @@ class LambdaHandlerIntegrationTest(unittest.TestCase):
                         'max_stock': 50,
                         'quantity': 30
                     }),
-                    'TopicArn': 'NewProductTopic'
+                    'TopicArn': f"arn:aws:sns:us-east-1:123456789012:{EventType.NewProductScheduled.name}"
                 }
             }]
         }
@@ -49,7 +54,7 @@ class LambdaHandlerIntegrationTest(unittest.TestCase):
 
         # Assert
         expected_product_to_persist = Product(
-            id=ANY,  # Here, you'd use ANY or some other way to deal with the dynamically generated ID
+            id=ANY,
             name='TestProduct',
             description='TestDescription',
             safety_stock=10,
@@ -58,9 +63,10 @@ class LambdaHandlerIntegrationTest(unittest.TestCase):
         )
         mock_insert_product.assert_called_with(expected_product_to_persist)
 
-    @patch('utils.component_provider.ComponentProvider.get_rds_client')
-    @patch('clients.rds_client.RdsClient')
-    def test_lambda_handler_integration_new_supplier(self, mock_rds_client, mock_get_rds_client):
+    @patch('utils.component_provider.ComponentProvider.get_rds_domain_client')
+    @patch('clients.rds_domain_client.RdsDomainClient')
+    @patch("boto3.client")
+    def test_lambda_handler_integration_new_supplier(self, boto_mock, mock_rds_client, mock_get_rds_client):
         mock_get_rds_client.return_value = mock_rds_client
 
         mock_insert_supplier = mock_rds_client.insert_supplier
@@ -72,7 +78,7 @@ class LambdaHandlerIntegrationTest(unittest.TestCase):
                     'Message': json.dumps({
                         'name': 'TestSupplier',
                     }),
-                    'TopicArn': 'NewSupplierTopic'
+                    'TopicArn': f"arn:aws:sns:us-east-1:123456789012:{EventType.NewSupplierScheduled.name}"
                 }
             }]
         }
@@ -86,9 +92,10 @@ class LambdaHandlerIntegrationTest(unittest.TestCase):
         )
         mock_insert_supplier.assert_called_with(expected_supplier_to_persist)
 
-    @patch('utils.component_provider.ComponentProvider.get_rds_client')
-    @patch('clients.rds_client.RdsClient')
-    def test_lambda_handler_integration_new_customer(self, mock_rds_client, mock_get_rds_client):
+    @patch('utils.component_provider.ComponentProvider.get_rds_domain_client')
+    @patch('clients.rds_domain_client.RdsDomainClient')
+    @patch("boto3.client")
+    def test_lambda_handler_integration_new_customer(self, boto_mock, mock_rds_client, mock_get_rds_client):
         mock_get_rds_client.return_value = mock_rds_client
 
         mock_insert_customer = mock_rds_client.insert_customer
@@ -100,7 +107,7 @@ class LambdaHandlerIntegrationTest(unittest.TestCase):
                     'Message': json.dumps({
                         'name': 'TestCustomer',
                     }),
-                    'TopicArn': 'NewCustomerTopic'
+                    'TopicArn': f"arn:aws:sns:us-east-1:123456789012:{EventType.NewCustomerScheduled.name}"
                 }
             }]
         }

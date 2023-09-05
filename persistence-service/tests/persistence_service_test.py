@@ -7,7 +7,7 @@ from services.persistence_service import PersistenceService
 
 class TestPersistenceService(unittest.TestCase):
 
-    @patch('services.persistence_service.RdsClient')
+    @patch('services.persistence_service.RdsDomainClient')
     @patch('services.persistence_service.IdGenerator')
     def test_persist_product(self, mock_IdGenerator, mock_RdsClient):
         mock_db_client = Mock()
@@ -20,7 +20,7 @@ class TestPersistenceService(unittest.TestCase):
 
         mock_db_client.insert_product.assert_called_once()
 
-    @patch('services.persistence_service.RdsClient')
+    @patch('services.persistence_service.RdsDomainClient')
     @patch('services.persistence_service.IdGenerator')
     def test_persist_supplier(self, mock_IdGenerator, mock_RdsClient):
         mock_db_client = Mock()
@@ -32,7 +32,7 @@ class TestPersistenceService(unittest.TestCase):
 
         mock_db_client.insert_supplier.assert_called_once()
 
-    @patch('services.persistence_service.RdsClient')
+    @patch('services.persistence_service.RdsDomainClient')
     @patch('services.persistence_service.IdGenerator')
     def test_persist_customer(self, mock_IdGenerator, mock_RdsClient):
         mock_db_client = Mock()

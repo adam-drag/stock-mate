@@ -1,11 +1,11 @@
-from clients.rds_client import RdsClient
+from clients.rds_domain_client import RdsDomainClient
 from models.models import ProductDto, SupplierDto, CustomerDto, Product, Supplier, \
     Customer
 from utils.id_generator import IdGenerator
 
 
 class PersistenceService:
-    def __init__(self, db_client: RdsClient):
+    def __init__(self, db_client: RdsDomainClient):
         self.db_client = db_client
 
     def persist_product(self, incoming_product: ProductDto) -> Product:
