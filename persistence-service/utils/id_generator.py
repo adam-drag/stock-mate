@@ -18,3 +18,11 @@ class IdGenerator:
     @staticmethod
     def generate_customer_id():
         return "cus_" + IdGenerator._generate_unique_id()
+
+    @staticmethod
+    def generate_purchase_order_id():
+        return "po_" + IdGenerator._generate_unique_id()
+
+    @staticmethod
+    def generate_sales_order_id():
+        return "so_" + IdGenerator._generate_unique_id()

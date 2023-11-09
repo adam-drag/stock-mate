@@ -15,7 +15,7 @@ class TopicRouter:
     def __init__(self, persistence_service: PersistenceService, sns_dispatcher: SnsDispatcher):
         self.persistence_service = persistence_service
         self.sns_dispatcher = sns_dispatcher
-        self.topic_to_handler = {
+        self.event_type_to_handler = {
             EventType.NewProductScheduled.name: self.handle_new_product,
             EventType.NewSupplierScheduled.name: self.handle_new_supplier,
             EventType.NewCustomerScheduled.name: self.handle_new_customer,
@@ -52,12 +52,9 @@ class TopicRouter:
         for record in event['Records']:
             sns_message = json.loads(record['Sns']['Message'])
 
-            topic_arn = record['Sns']['TopicArn']
-            topic_name = topic_arn.split(':')[-1]
-
-            handler = self.topic_to_handler.get(topic_name)
+            handler = self.event_type_to_handler.get(sns_message["event_type"])
 
             if handler:
-                handler(sns_message)
+                handler(sns_message["payload"])
             else:
-                logging.error(f"Unknown topic: {topic_name}")
+                logging.error(f"Unknown event_type: {sns_message['event_type']}")
