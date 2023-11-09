@@ -69,8 +69,12 @@ def lambda_handler(event, context, event_manager=None):
     logger.info(f"Publishing to SNS:{event_config}: {request_data}")
     try:
         sns_arn = event_config.get_arn()
-        payload = json.dumps(request_data)
-        event_manager.send_event(sns_arn, event_config.event_type, EMITTER_NAME, payload)
+        message = {
+            "event_type": event_config.event_type.name,
+            "payload": request_data
+        }
+        message_json = json.dumps(message)
+        event_manager.send_event(sns_arn, event_config.event_type, EMITTER_NAME, message_json)
     except Exception as e:
         logger.error(f"Error publishing to SNS: {e}")
         traceback.print_exc()
