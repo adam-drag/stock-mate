@@ -1,6 +1,6 @@
 import unittest
 
-from api_responses import INVALID_REQUEST_METHOD_RESPONSE, INVALID_JSON_PAYLOAD_RESPONSE
+from common.api_responses import INVALID_REQUEST_METHOD_RESPONSE, INVALID_JSON_PAYLOAD_RESPONSE
 from validator import validate_request, validate_create_purchase_order_payload, date_validator, order_position_validator
 
 

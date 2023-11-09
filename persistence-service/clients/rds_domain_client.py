@@ -1,5 +1,6 @@
+from models.models import Product, Supplier, Customer, PurchaseOrder, SalesOrder
+
 from common.clients.rds_client import RdsClient
-from models.models import Product, Supplier, Customer
 
 
 class RdsDomainClient(RdsClient):
@@ -27,4 +28,20 @@ class RdsDomainClient(RdsClient):
         VALUES (%s, %s)
         """
         params = (customer.id, customer.name)
+        self.execute(query, params)
+
+    def insert_purchase_order(self, purchase_order: PurchaseOrder):  # TODO order positions
+        query = """
+        INSERT INTO purchase_orders (id, supplier_id, created_at) 
+        VALUES (%s, %s, %s)
+        """
+        params = (purchase_order.id, purchase_order.supplier_id, purchase_order.created_at)
+        self.execute(query, params)
+
+    def insert_sales_order(self, sales_order: SalesOrder):  # TODO order positions
+        query = """
+        INSERT INTO sales_orders (id, customer_id, created_at) 
+        VALUES (%s, %s, %s)
+        """
+        params = (sales_order.id, sales_order.customer_id, sales_order.created_at)
         self.execute(query, params)

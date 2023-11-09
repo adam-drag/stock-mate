@@ -2,7 +2,7 @@ import json
 import logging
 from datetime import datetime, timezone
 
-from api_responses import INVALID_REQUEST_METHOD_RESPONSE, INVALID_ENDPOINT_RESPONSE, INVALID_JSON_PAYLOAD_RESPONSE, \
+from common.api_responses import INVALID_REQUEST_METHOD_RESPONSE, INVALID_JSON_PAYLOAD_RESPONSE, \
     response_with_custom_message
 
 logger = logging.getLogger()
@@ -142,21 +142,35 @@ def stock_level_validator(stock_level) -> bool:
     return stock_level is None or stock_level >= 0
 
 
-def product_name_validator(name) -> bool:
+def name_field_validator(name) -> bool:
     return name is not None and isinstance(name, str) and len(name) > 0
 
 
 create_product_field_validators = {
-    "product_id": product_id_validator,
-    "name": product_name_validator,
+    "name": name_field_validator,
     "minimumStockLevel": stock_level_validator,
     "maximumStockLevel": stock_level_validator,
 }
 
 create_product_required_fields = [
-    "product_id",
     "name"
 ]
+
+create_customer_required_fields = [
+    "name"
+]
+
+create_customer_field_validators = {
+    "name": name_field_validator,
+}
+
+create_supplier_required_fields = [
+    "name"
+]
+
+create_supplier_field_validators = {
+    "name": name_field_validator,
+}
 
 
 def validate_payload(payload_str, required_fields, field_validators):
@@ -186,6 +200,14 @@ def validate_create_product_payload(payload):
     return validate_payload(payload, create_product_required_fields, create_product_field_validators)
 
 
+def validate_create_customer_payload(payload):
+    return validate_payload(payload, create_customer_required_fields, create_customer_field_validators)
+
+
+def validate_create_supplier_payload(payload):
+    return validate_payload(payload, create_supplier_required_fields, create_supplier_field_validators)
+
+
 def validate_request(event) -> ValidationResult:
     http_method = event.get("httpMethod", "").upper()
 
@@ -195,15 +217,8 @@ def validate_request(event) -> ValidationResult:
     try:
         json.loads(event.get('body', None))
     except Exception as e:
+        logger.error(f"Failed to parse JSON payload: {str(e)}")
         return ValidationResult(False, INVALID_JSON_PAYLOAD_RESPONSE)
 
     return ValidationResult(True, None)
 
-
-def validate_create_purchase_order_request(event) -> ValidationResult:
-    validation_result = validate_request(event)
-    if not validation_result:
-        return validation_result
-
-    payload = json.loads(event.get('body', None))
-    return validate_create_purchase_order_payload(payload)

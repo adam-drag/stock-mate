@@ -25,6 +25,11 @@ INVALID_JSON_PAYLOAD_RESPONSE = {
     'body': json.dumps({'message': 'Invalid JSON payload'})
 }
 
+NOT_SUPPORTED_YET_RESPONSE = {
+    'statusCode': 400,
+    'body': json.dumps({'message': 'Not Supported yet'})
+}
+
 
 def response_with_custom_message(message):
     return {

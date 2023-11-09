@@ -24,12 +24,34 @@ class RdsClient:
             logging.error(f"Failed to connect to DB: {e}")
             raise e
 
-    def execute(self, query, params=None):
-        conn = None
-        result = None
+    def start_transaction(self):
+        return self.connection_pool.getconn()
+
+    def commit_transaction(self, conn):
+        try:
+            conn.commit()
+        except Exception as e:
+            logging.error(f"Commit transaction failed: {e}")
+            raise e
+
+    def rollback_transaction(self, conn):
+        try:
+            if conn:
+                conn.rollback()
+        except Exception as e:
+            logging.error(f"Rollback transaction failed: {e}")
+            raise e
+        finally:
+            self.connection_pool.putconn(conn)
+
+    def execute(self, query, params=None, conn=None, commit=True):
+        is_conn_from_pool = False
 
         try:
-            conn = self.connection_pool.getconn()
+            if conn is None:
+                conn = self.connection_pool.getconn()
+                is_conn_from_pool = True
+
             with conn.cursor() as cur:
                 if params:
                     cur.execute(query, params)
@@ -41,15 +63,16 @@ class RdsClient:
                 else:
                     result = cur.rowcount
 
-            conn.commit()
+                if commit and not query.strip().upper().startswith('SELECT'):
+                    self.commit_transaction(conn)
 
         except Exception as e:
             logging.error(f"Query execution failed: {e}")
-            if conn:
-                conn.rollback()
+            self.rollback_transaction(conn)
+            raise e
 
         finally:
-            if conn:
+            if is_conn_from_pool:
                 self.connection_pool.putconn(conn)
 
         return result

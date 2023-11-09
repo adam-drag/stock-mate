@@ -19,9 +19,11 @@ class Product(ProductDto):
 class Supplier(ProductDto):
     id: str
 
+
 @dataclass
 class Customer(ProductDto):
     id: str
+
 
 @dataclass
 class SupplierDto:
@@ -40,4 +42,36 @@ class CustomerDto:
 
 @dataclass
 class Customer(CustomerDto):
+    id: str
+
+
+@dataclass
+class OrderPositionDto:
+    product_id: str
+    price: float
+    quantityOrdered: int
+    deliveryDate: str
+
+
+@dataclass
+class PurchaseOrderDto:
+    supplier_id: str
+    created_at: str
+    order_positions: list[OrderPositionDto]
+
+
+@dataclass
+class SalesOrderDto:
+    customer_id: str
+    created_at: str
+    order_positions: list[OrderPositionDto]
+
+
+@dataclass
+class PurchaseOrder(PurchaseOrderDto):
+    id: str
+
+
+@dataclass
+class SalesOrder(SalesOrderDto):
     id: str

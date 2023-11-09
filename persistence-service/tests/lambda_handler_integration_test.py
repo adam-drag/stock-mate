@@ -27,7 +27,7 @@ class LambdaHandlerIntegrationTest(unittest.TestCase):
     @patch('utils.component_provider.ComponentProvider.get_rds_domain_client')
     @patch('clients.rds_domain_client.RdsDomainClient')
     @patch("boto3.client")
-    def test_lambda_handler_integration(self, boto_mock, mock_rds_client, mock_get_rds_client):
+    def test_lambda_handler_integration_new_product(self, boto_mock, mock_rds_client, mock_get_rds_client):
         mock_get_rds_client.return_value = mock_rds_client
 
         mock_insert_product = mock_rds_client.insert_product
@@ -96,6 +96,35 @@ class LambdaHandlerIntegrationTest(unittest.TestCase):
     @patch('clients.rds_domain_client.RdsDomainClient')
     @patch("boto3.client")
     def test_lambda_handler_integration_new_customer(self, boto_mock, mock_rds_client, mock_get_rds_client):
+        mock_get_rds_client.return_value = mock_rds_client
+
+        mock_insert_customer = mock_rds_client.insert_customer
+        mock_insert_customer.return_value = None
+
+        event = {
+            'Records': [{
+                'Sns': {
+                    'Message': json.dumps({
+                        'name': 'TestCustomer',
+                    }),
+                    'TopicArn': f"arn:aws:sns:us-east-1:123456789012:{EventType.NewCustomerScheduled.name}"
+                }
+            }]
+        }
+        context = {}
+
+        result = lambda_handler(event, context)
+
+        expected_customer_to_persist = Customer(
+            id=ANY,
+            name='TestCustomer'
+        )
+        mock_insert_customer.assert_called_with(expected_customer_to_persist)
+
+    @patch('utils.component_provider.ComponentProvider.get_rds_domain_client')
+    @patch('clients.rds_domain_client.RdsDomainClient')
+    @patch("boto3.client")
+    def test_lambda_handler_integration_new_purchase_order(self, boto_mock, mock_rds_client, mock_get_rds_client):
         mock_get_rds_client.return_value = mock_rds_client
 
         mock_insert_customer = mock_rds_client.insert_customer

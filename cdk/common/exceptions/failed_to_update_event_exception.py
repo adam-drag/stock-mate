@@ -1,0 +1,2 @@
+class FailedToUpdateEventException(Exception):
+    pass
