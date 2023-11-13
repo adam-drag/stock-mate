@@ -5,7 +5,10 @@ from aws_cdk import (
     aws_ec2 as ec2,
     Stack,
     aws_rds as rds,
-    aws_secretsmanager as secretsmanager, Duration, )
+    aws_secretsmanager as secretsmanager, Duration,
+    aws_cloudformation as cfn,
+    aws_events as events,
+    aws_events_targets as targets)
 from constructs import Construct
 
 from lib.vpc_stack import RdsVpcStack
@@ -117,5 +120,29 @@ class RdsStack(Stack):
                 "DB_SECRET_NAME": self.db_secret.secret_name,
                 "DB_NAME": self.db_name,
             },
+            security_groups=[vpc.lambda_security_group],
+
             timeout=Duration.minutes(5),
         )
+
+        # rds_instance_check_resource = cfn.CustomResource(
+        #     self, 'RdsInitResource',
+        #     provider=cfn.CustomResourceProvider.from_lambda(db_initializer_lambda),
+        #     properties={
+        #         'FunctionName': db_initializer_lambda.function_name,
+        #     }
+        # )
+        #
+        # rds_init_event_rule = events.Rule(
+        #     self, 'RdsInitEventRule',
+        #     event_pattern={
+        #         'source': ['aws.cloudformation'],
+        #         'detail': {
+        #             'eventName': ['CreateStack', 'UpdateStack'],
+        #         },
+        #     },
+        # )
+        #
+        # rds_init_event_rule.add_target(targets.LambdaFunction(rds_instance_check_resource))
+        #
+        # rds_instance_check_resource.node.add_dependency(self.db_instance)
