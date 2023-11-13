@@ -15,7 +15,7 @@ class RdsClient:
             self.connection_pool = psycopg2.pool.SimpleConnectionPool(
                 os.environ.get('MIN_DB_CONNECTIONS', DEFAULT_MIN_DB_CONNECTIONS),
                 os.environ.get('MAX_DB_CONNECTIONS', DEFAULT_MAX_DB_CONNECTIONS),
-                host=os.environ['DB_HOST'],
+                host=f"{os.environ['DB_HOST']}:{os.environ.get('DB_PORT', '5432')}",
                 database=os.environ['DB_NAME'],
                 user=os.environ['DB_USER'],
                 password=os.environ['DB_PASSWORD']

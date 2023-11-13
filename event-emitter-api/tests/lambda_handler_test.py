@@ -7,10 +7,10 @@ import boto3
 import pytz
 from moto import mock_sns
 
+from app import lambda_handler, EMITTER_NAME
 from common.api_responses import SUCCESS_RESPONSE, INVALID_REQUEST_METHOD_RESPONSE, INVALID_ENDPOINT_RESPONSE, \
     INVALID_JSON_PAYLOAD_RESPONSE, response_with_custom_message
 from common.events.events import EventType
-from lambda_handler import lambda_handler, EMITTER_NAME
 
 
 @patch.dict('os.environ', {
@@ -23,7 +23,7 @@ from lambda_handler import lambda_handler, EMITTER_NAME
     'NEW_SUPPLIER_SCHEDULED_SNS_ARN': 'mock_arn_value_for_supplier',
     'NEW_CUSTOMER_SCHEDULED_SNS_ARN': 'mock_arn_value_for_customer'
 })
-@patch('lambda_handler.EventManager')
+@patch('common.events.event_manager.EventManager')
 @mock_sns
 class TestLambdaHandler(unittest.TestCase):
 

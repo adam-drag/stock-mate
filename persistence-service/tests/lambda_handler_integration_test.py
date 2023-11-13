@@ -6,7 +6,7 @@ from unittest.mock import patch, ANY
 from moto import mock_sns
 
 from common.events.events import EventType
-from lambda_handler import lambda_handler
+from app import lambda_handler
 from models.models import Product, Customer, Supplier
 from utils.component_provider import ComponentProvider
 

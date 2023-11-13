@@ -2,7 +2,7 @@ import json
 import unittest
 from unittest.mock import patch, Mock
 
-from lambda_handler import lambda_handler, component_provider
+from app import lambda_handler, component_provider
 
 
 class TestLambdaHandler(unittest.TestCase):
