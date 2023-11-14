@@ -57,3 +57,10 @@ class RdsVpcStack(Stack):
             private_dns_enabled=True,
             security_groups=[self.lambda_security_group],
         )
+
+        self.custom_vpc.add_interface_endpoint(
+            'SnsEndpoint',
+            service=ec2.InterfaceVpcEndpointAwsService.SNS,
+            private_dns_enabled=True,
+            security_groups=[self.lambda_security_group],
+        )

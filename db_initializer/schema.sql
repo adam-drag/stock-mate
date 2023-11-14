@@ -1,7 +1,7 @@
 CREATE SCHEMA IF NOT EXISTS stock_management;
 
 CREATE TABLE IF NOT EXISTS stock_management.product (
-    id SERIAL PRIMARY KEY,
+    id VARCHAR(20) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT,
     safety_stock INT,
@@ -10,13 +10,13 @@ CREATE TABLE IF NOT EXISTS stock_management.product (
 );
 
 CREATE TABLE IF NOT EXISTS stock_management.supplier (
-    id SERIAL PRIMARY KEY,
+    id VARCHAR(20) PRIMARY KEY,
     name VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS stock_management.product_supplier (
-    product_id INT,
-    supplier_id INT,
+    product_id VARCHAR(20),
+    supplier_id VARCHAR(20),
     price DECIMAL(10, 2),
     lead_time INT,
     incoterms_2020 VARCHAR(255),
@@ -26,23 +26,23 @@ CREATE TABLE IF NOT EXISTS stock_management.product_supplier (
 );
 
 CREATE TABLE IF NOT EXISTS stock_management.customer (
-    id SERIAL PRIMARY KEY,
+    id VARCHAR(20) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     address TEXT
 );
 
 CREATE TABLE IF NOT EXISTS stock_management.purchase_order_header (
-    id SERIAL PRIMARY KEY,
-    supplier_id INT,
+    id VARCHAR(20) PRIMARY KEY,
+    supplier_id VARCHAR(20),
     order_date DATE,
     delivery_date DATE,
     FOREIGN KEY (supplier_id) REFERENCES stock_management.supplier(id)
 );
 
 CREATE TABLE IF NOT EXISTS stock_management.purchase_order_position (
-    id SERIAL PRIMARY KEY,
-    product_id INT,
-    purchase_order_header_id INT,
+    id VARCHAR(20) PRIMARY KEY,
+    product_id VARCHAR(20),
+    purchase_order_header_id VARCHAR(20),
     quantity_ordered INT,
     quantity_received INT,
     price DECIMAL(10, 2),
@@ -51,17 +51,17 @@ CREATE TABLE IF NOT EXISTS stock_management.purchase_order_position (
 );
 
 CREATE TABLE IF NOT EXISTS stock_management.sales_order_header (
-    id SERIAL PRIMARY KEY,
-    customer_id INT,
+    id VARCHAR(20) PRIMARY KEY,
+    customer_id VARCHAR(20),
     order_date DATE,
     delivery_date DATE,
     FOREIGN KEY (customer_id) REFERENCES stock_management.customer(id)
 );
 
 CREATE TABLE IF NOT EXISTS stock_management.sales_order_position (
-    id SERIAL PRIMARY KEY,
-    product_id INT,
-    sales_order_header_id INT,
+    id VARCHAR(20) PRIMARY KEY,
+    product_id VARCHAR(20),
+    sales_order_header_id VARCHAR(20),
     quantity_ordered INT,
     quantity_received INT,
     price DECIMAL(10, 2),
@@ -70,22 +70,22 @@ CREATE TABLE IF NOT EXISTS stock_management.sales_order_position (
 );
 
 CREATE TABLE IF NOT EXISTS stock_management.usage (
-    id SERIAL PRIMARY KEY,
-    product_id INT,
+    id VARCHAR(20) PRIMARY KEY,
+    product_id VARCHAR(20),
     date DATE,
     quantity INT,
     FOREIGN KEY (product_id) REFERENCES stock_management.product(id)
 );
 
 CREATE TABLE IF NOT EXISTS stock_management.issue (
-    id SERIAL PRIMARY KEY,
+    id VARCHAR(20) PRIMARY KEY,
     type VARCHAR(50),
     action VARCHAR(50),
     severity VARCHAR(50)
 );
 
 CREATE TABLE IF NOT EXISTS stock_management.events (
-    event_id SERIAL PRIMARY KEY,
+    event_id VARCHAR(20) PRIMARY KEY,
     event_type VARCHAR(255),
     emitter VARCHAR(255),
     message TEXT,

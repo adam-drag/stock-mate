@@ -5,10 +5,7 @@ from aws_cdk import (
     aws_ec2 as ec2,
     Stack,
     aws_rds as rds,
-    aws_secretsmanager as secretsmanager, Duration,
-    aws_cloudformation as cfn,
-    aws_events as events,
-    aws_events_targets as targets)
+    aws_secretsmanager as secretsmanager, Duration)
 from constructs import Construct
 
 from lib.vpc_stack import RdsVpcStack

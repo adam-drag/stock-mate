@@ -25,7 +25,7 @@ class EventManager:
     def persist_event(self, emitter, event_type, message):
         event_id = self._generate_unique_event_id()
         insert_query = (
-            "INSERT INTO events (event_id, event_type, emitter, message, created_at) "
+            "INSERT INTO stock_management.events (event_id, event_type, emitter, message, created_at) "
             "VALUES (%s, %s, %s, %s, %s)"
         )
         params = (event_id, event_type.name, emitter, message, datetime.now())

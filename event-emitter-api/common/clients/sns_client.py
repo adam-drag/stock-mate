@@ -1,12 +1,11 @@
 import json
-import logging
 
 import boto3
 
 from common.api_responses import FAILED_TO_PUBLISH_TO_SNS_RESPONSE
+from common.utils.logger import get_logger
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger = get_logger(__name__)
 
 
 class SnsClient:

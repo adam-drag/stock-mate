@@ -14,22 +14,29 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 
 
 def database_exists(conn, db_name):
-    with conn.cursor() as cursor:
-        cursor.execute("SELECT 1 FROM pg_database WHERE datname = %s;", (db_name,))
-        return cursor.fetchone() is not None
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT 1 FROM pg_database WHERE datname = %s;", (db_name,))
+            return cursor.fetchone() is not None
+    except Exception as e:
+        logger.error(f"Error checking if database exists: {e}")
+        raise
+    finally:
+        conn.commit()
 
 
 def create_database(conn):
     try:
         conn.autocommit = True
         with conn.cursor() as cursor:
-            cursor.execute(f"CREATE IF NOT EXISTS DATABASE {os.environ['DB_NAME']};")
+            cursor.execute(f"CREATE DATABASE {os.environ['DB_NAME']};")
         conn.commit()
         logger.info("Database 'stock_mate_main_db' created successfully.")
     except Exception as e:
         logger.error(f"Error creating database: {e}")
         raise
-
+    finally:
+        conn.commit()
 
 def get_logger(name):
     """
@@ -65,7 +72,7 @@ def lambda_handler(event, context):
         username = secret_dict.get("username")
         password = secret_dict.get("password")
         logger.info("Successfully pulled db credentials")
-        
+
         create_db_if_not_exists(password, username)
         run_sql_statements(password, username)
         return {
