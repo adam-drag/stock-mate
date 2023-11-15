@@ -6,7 +6,7 @@ from unittest.mock import patch, ANY
 from moto import mock_sns
 
 from common.events.events import EventType
-from lambda_handler import lambda_handler
+from app import lambda_handler
 from models.models import Product, Customer, Supplier
 from utils.component_provider import ComponentProvider
 
@@ -33,16 +33,21 @@ class LambdaHandlerIntegrationTest(unittest.TestCase):
         mock_insert_product = mock_rds_client.insert_product
         mock_insert_product.return_value = None
 
+        payload = {
+            'name': 'TestProduct',
+            'description': 'TestDescription',
+            'safety_stock': 10,
+            'max_stock': 50,
+            'quantity': 30
+        }
+        message = {
+            "payload": payload,
+            "event_type": EventType.NewProductScheduled.name
+        }
         event = {
             'Records': [{
                 'Sns': {
-                    'Message': json.dumps({
-                        'name': 'TestProduct',
-                        'description': 'TestDescription',
-                        'safety_stock': 10,
-                        'max_stock': 50,
-                        'quantity': 30
-                    }),
+                    'Message': json.dumps(message),
                     'TopicArn': f"arn:aws:sns:us-east-1:123456789012:{EventType.NewProductScheduled.name}"
                 }
             }]
@@ -72,12 +77,17 @@ class LambdaHandlerIntegrationTest(unittest.TestCase):
         mock_insert_supplier = mock_rds_client.insert_supplier
         mock_insert_supplier.return_value = None
 
+        payload = {
+            'name': 'TestSupplier',
+        }
+        message = {
+            "payload": payload,
+            "event_type": EventType.NewSupplierScheduled.name
+        }
         event = {
             'Records': [{
                 'Sns': {
-                    'Message': json.dumps({
-                        'name': 'TestSupplier',
-                    }),
+                    'Message': json.dumps(message),
                     'TopicArn': f"arn:aws:sns:us-east-1:123456789012:{EventType.NewSupplierScheduled.name}"
                 }
             }]
@@ -101,12 +111,17 @@ class LambdaHandlerIntegrationTest(unittest.TestCase):
         mock_insert_customer = mock_rds_client.insert_customer
         mock_insert_customer.return_value = None
 
+        payload = {
+            'name': 'TestCustomer',
+        }
+        message = {
+            "payload": payload,
+            "event_type": EventType.NewCustomerScheduled.name
+        }
         event = {
             'Records': [{
                 'Sns': {
-                    'Message': json.dumps({
-                        'name': 'TestCustomer',
-                    }),
+                    'Message': json.dumps(message),
                     'TopicArn': f"arn:aws:sns:us-east-1:123456789012:{EventType.NewCustomerScheduled.name}"
                 }
             }]
@@ -130,12 +145,17 @@ class LambdaHandlerIntegrationTest(unittest.TestCase):
         mock_insert_customer = mock_rds_client.insert_customer
         mock_insert_customer.return_value = None
 
+        payload = {
+            'name': 'TestCustomer',
+        }
+        message = {
+            "payload": payload,
+            "event_type": EventType.NewCustomerScheduled.name
+        }
         event = {
             'Records': [{
                 'Sns': {
-                    'Message': json.dumps({
-                        'name': 'TestCustomer',
-                    }),
+                    'Message': json.dumps(message),
                     'TopicArn': f"arn:aws:sns:us-east-1:123456789012:{EventType.NewCustomerScheduled.name}"
                 }
             }]

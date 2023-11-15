@@ -7,7 +7,7 @@ class RdsDomainClient(RdsClient):
 
     def insert_product(self, product: Product):
         query = """
-        INSERT INTO products (id, name, description, safety_stock, max_stock, quantity) 
+        INSERT INTO stock_management.product (id, name, description, safety_stock, max_stock, quantity) 
         VALUES (%s, %s, %s, %s, %s, %s)
         """
         params = (
@@ -16,7 +16,7 @@ class RdsDomainClient(RdsClient):
 
     def insert_supplier(self, supplier: Supplier):
         query = """
-        INSERT INTO suppliers (id, name) 
+        INSERT INTO stock_management.supplier (id, name) 
         VALUES (%s, %s)
         """
         params = (supplier.id, supplier.name)
@@ -24,7 +24,7 @@ class RdsDomainClient(RdsClient):
 
     def insert_customer(self, customer: Customer):
         query = """
-        INSERT INTO customers (id, name) 
+        INSERT INTO stock_management.customer (id, name) 
         VALUES (%s, %s)
         """
         params = (customer.id, customer.name)
@@ -32,7 +32,7 @@ class RdsDomainClient(RdsClient):
 
     def insert_purchase_order(self, purchase_order: PurchaseOrder):  # TODO order positions
         query = """
-        INSERT INTO purchase_orders (id, supplier_id, created_at) 
+        INSERT INTO stock_management.purchase_order (id, supplier_id, created_at) 
         VALUES (%s, %s, %s)
         """
         params = (purchase_order.id, purchase_order.supplier_id, purchase_order.created_at)
@@ -40,7 +40,7 @@ class RdsDomainClient(RdsClient):
 
     def insert_sales_order(self, sales_order: SalesOrder):  # TODO order positions
         query = """
-        INSERT INTO sales_orders (id, customer_id, created_at) 
+        INSERT INTO stock_management.sales_order (id, customer_id, created_at) 
         VALUES (%s, %s, %s)
         """
         params = (sales_order.id, sales_order.customer_id, sales_order.created_at)

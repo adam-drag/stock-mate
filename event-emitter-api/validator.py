@@ -1,12 +1,11 @@
 import json
-import logging
 from datetime import datetime, timezone
 
 from common.api_responses import INVALID_REQUEST_METHOD_RESPONSE, INVALID_JSON_PAYLOAD_RESPONSE, \
     response_with_custom_message
+from common.utils.logger import get_logger
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logger = get_logger(__name__)
 
 SUPPLIER_ID_PREFIX = "sup_"
 PRODUCT_ID_PREFIX = "prod_"
@@ -221,4 +220,3 @@ def validate_request(event) -> ValidationResult:
         return ValidationResult(False, INVALID_JSON_PAYLOAD_RESPONSE)
 
     return ValidationResult(True, None)
-

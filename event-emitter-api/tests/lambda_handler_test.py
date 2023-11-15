@@ -7,10 +7,10 @@ import boto3
 import pytz
 from moto import mock_sns
 
+from app import lambda_handler, EMITTER_NAME
 from common.api_responses import SUCCESS_RESPONSE, INVALID_REQUEST_METHOD_RESPONSE, INVALID_ENDPOINT_RESPONSE, \
     INVALID_JSON_PAYLOAD_RESPONSE, response_with_custom_message
 from common.events.events import EventType
-from lambda_handler import lambda_handler, EMITTER_NAME
 
 
 @patch.dict('os.environ', {
@@ -23,7 +23,7 @@ from lambda_handler import lambda_handler, EMITTER_NAME
     'NEW_SUPPLIER_SCHEDULED_SNS_ARN': 'mock_arn_value_for_supplier',
     'NEW_CUSTOMER_SCHEDULED_SNS_ARN': 'mock_arn_value_for_customer'
 })
-@patch('lambda_handler.EventManager')
+@patch('common.events.event_manager.EventManager')
 @mock_sns
 class TestLambdaHandler(unittest.TestCase):
 
@@ -66,10 +66,16 @@ class TestLambdaHandler(unittest.TestCase):
             'path': '/purchase-order',
             'body': json_payload
         }
+        expected_message = {
+            "event_type": EventType.NewPurchaseOrderScheduled.name,
+            "payload": purchase_order_request_payload
+        }
+        expected_message_json = json.dumps(expected_message)
         response = lambda_handler(event, None, event_manager=event_manager_mock)
         self.assertEqual(response, SUCCESS_RESPONSE)
         event_manager_mock.send_event.assert_called_with(
-            'mock_arn_value_for_purchase_order', EventType.NewPurchaseOrderScheduled, EMITTER_NAME, json_payload)
+            'mock_arn_value_for_purchase_order', EventType.NewPurchaseOrderScheduled, EMITTER_NAME,
+            expected_message_json)
 
     def test_valid_request_create_sales_order(self, event_manager_mock):
         sales_order_request_payload = {
@@ -89,10 +95,15 @@ class TestLambdaHandler(unittest.TestCase):
             'path': '/sales-order',
             'body': json_payload
         }
+        expected_message = {
+            "event_type": EventType.NewSalesOrderScheduled.name,
+            "payload": sales_order_request_payload
+        }
+        expected_message_json = json.dumps(expected_message)
         response = lambda_handler(event, None, event_manager=event_manager_mock)
         self.assertEqual(response, SUCCESS_RESPONSE)
         event_manager_mock.send_event.assert_called_with(
-            'mock_arn_value_for_sales_order', EventType.NewSalesOrderScheduled, EMITTER_NAME, json_payload)
+            'mock_arn_value_for_sales_order', EventType.NewSalesOrderScheduled, EMITTER_NAME, expected_message_json)
 
     def test_valid_request_create_product(self, event_manager_mock):
         product_request_payload = {
@@ -105,10 +116,15 @@ class TestLambdaHandler(unittest.TestCase):
             'path': '/product',
             'body': json_payload
         }
+        expected_message = {
+            "event_type": EventType.NewProductScheduled.name,
+            "payload": product_request_payload
+        }
+        expected_message_json = json.dumps(expected_message)
         response = lambda_handler(event, None, event_manager=event_manager_mock)
         self.assertEqual(response, SUCCESS_RESPONSE)
         event_manager_mock.send_event.assert_called_with(
-            'mock_arn_value_for_product', EventType.NewProductScheduled, EMITTER_NAME, json_payload)
+            'mock_arn_value_for_product', EventType.NewProductScheduled, EMITTER_NAME, expected_message_json)
 
     def test_invalid_http_method(self, event_manager_mock):
         event = {

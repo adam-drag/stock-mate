@@ -1,6 +1,6 @@
 from clients.rds_domain_client import RdsDomainClient
 from models.models import ProductDto, SupplierDto, CustomerDto, Product, Supplier, \
-    Customer, PurchaseOrderDto, PurchaseOrder
+    Customer, PurchaseOrderDto, PurchaseOrder, SalesOrderDto, SalesOrder
 from utils.id_generator import IdGenerator
 
 
@@ -31,3 +31,9 @@ class PersistenceService:
         purchase_order_to_persist = PurchaseOrder(id=purchase_order_id, **incoming_purchase_order.__dict__)
         self.db_client.insert_purchase_order(purchase_order_to_persist)
         return purchase_order_to_persist
+
+    def persist_sales_order(self, incoming_sales_order: SalesOrderDto) -> SalesOrder:
+        sales_order_id = IdGenerator.generate_sales_order_id()
+        sales_order_to_persist = SalesOrder(id=sales_order_id, **incoming_sales_order.__dict__)
+        self.db_client.insert_sales_order(sales_order_to_persist)
+        return sales_order_to_persist

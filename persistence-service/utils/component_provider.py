@@ -1,6 +1,6 @@
 from clients.rds_domain_client import RdsDomainClient
+from common.events.event_manager import EventManager
 from services.persistence_service import PersistenceService
-from services.sns_dispatcher import SnsDispatcher
 from services.topic_router import TopicRouter
 
 
@@ -8,7 +8,7 @@ class ComponentProvider:
     _persistence_service = None
     _topic_router = None
     _rds_domain_client = None
-    _sns_dispatcher = None
+    _event_manager = None
 
     @staticmethod
     def get_rds_domain_client():
@@ -27,11 +27,11 @@ class ComponentProvider:
     def get_topic_router():
         if ComponentProvider._topic_router is None:
             persistence_service = ComponentProvider.get_persistence_service()
-            ComponentProvider._topic_router = TopicRouter(persistence_service, ComponentProvider.get_sns_dispatcher())
+            ComponentProvider._topic_router = TopicRouter(persistence_service, ComponentProvider.get_event_manager())
         return ComponentProvider._topic_router
 
     @staticmethod
-    def get_sns_dispatcher():
-        if ComponentProvider._sns_dispatcher is None:
-            ComponentProvider._sns_dispatcher = SnsDispatcher()
-        return ComponentProvider._sns_dispatcher
+    def get_event_manager():
+        if ComponentProvider._event_manager is None:
+            ComponentProvider._event_manager = EventManager()
+        return ComponentProvider._event_manager

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Network Animation</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background-color: #000;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        #textContainer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            color: white;
+            font-size: 16px;
+            width: 50%;
+            white-space: nowrap;
+            overflow: hidden;
+            cursor: pointer;
+            z-index: 1;
+            word-wrap: break-word; /* Allow the text to wrap within the div */
+        }
+    </style>
+</head>
+<body>
+    <div id="textContainer"></div>
+    <script src="https://threejs.org/build/three.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+            // Adjust camera position to center
+            camera.position.x = 0;
+            camera.position.y = 0;
+            camera.position.z = 5;
+
+            const cubes = [];
+
+            function createRandomCube(path_to_img) {
+                const geometry = new THREE.BoxGeometry();
+
+                // Randomize size
+                const size = Math.random() * (0.75 - 0.3) + 0.3;
+                geometry.scale(size, size, size);
+
+                const materials = [
+                    new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load(path_to_img, texture => {
+                        texture.minFilter = THREE.LinearFilter;
+                        texture.magFilter = THREE.LinearFilter;
+                    }) }),
+                    new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load(path_to_img, texture => {
+                        texture.minFilter = THREE.LinearFilter;
+                        texture.magFilter = THREE.LinearFilter;
+                    }) }),
+                    new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load(path_to_img, texture => {
+                        texture.minFilter = THREE.LinearFilter;
+                        texture.magFilter = THREE.LinearFilter;
+                    }) }),
+                    new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load(path_to_img, texture => {
+                        texture.minFilter = THREE.LinearFilter;
+                        texture.magFilter = THREE.LinearFilter;
+                    }) }),
+                    new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load(path_to_img, texture => {
+                        texture.minFilter = THREE.LinearFilter;
+                        texture.magFilter = THREE.LinearFilter;
+                    }) }),
+                    new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load(path_to_img, texture => {
+                        texture.minFilter = THREE.LinearFilter;
+                        texture.magFilter = THREE.LinearFilter;
+                    }) }),
+                ];
+
+                const cube = new THREE.Mesh(geometry, materials);
+
+                // Set position relative to camera
+                cube.position.x = 2 + Math.random() * 7 - 3;
+                cube.position.y = Math.random() * 7 - 3;
+                cube.position.z = -Math.random() * 2;
+
+                scene.add(cube);
+                cubes.push(cube);
+            }
+
+            function connectCubes() {
+                const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
+
+                cubes.forEach(cube => {
+                    // Connect each cube to two other random cubes
+                    for (let i = 0; i < 2; i++) {
+                        const targetCube = cubes[Math.floor(Math.random() * cubes.length)];
+
+                        const points = [];
+                        points.push(cube.position.clone());
+                        points.push(targetCube.position.clone());
+
+                        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                        const line = new THREE.Line(geometry, lineMaterial);
+                        scene.add(line);
+                    }
+                });
+            }
+
+            function animate() {
+                requestAnimationFrame(animate);
+
+                // Rotate all cubes
+                cubes.forEach(cube => {
+                    cube.rotation.x += 0.01;
+                    cube.rotation.y += 0.01;
+                });
+
+                renderer.render(scene, camera);
+            }
+
+            window.addEventListener('resize', function() {
+                const newWidth = window.innerWidth;
+                const newHeight = window.innerHeight;
+
+                camera.aspect = newWidth / newHeight;
+                camera.updateProjectionMatrix();
+
+                renderer.setSize(newWidth, newHeight);
+            });
+
+            // Create multiple random cubes
+            createRandomCube('./l1.png');
+            createRandomCube('./python.svg');
+            createRandomCube('./js.png');
+            createRandomCube('./aws.png');
+            createRandomCube('./node.jpeg');
+            createRandomCube('./java.png');
+            createRandomCube('./ts.png');
+            createRandomCube('./spring.png');
+            createRandomCube('./angular.png');
+            createRandomCube('./jenkins.png');
+            createRandomCube('./linux.png');
+            createRandomCube('./rabbit.png');
+            createRandomCube('./vue.png');
+            connectCubes();
+
+            animate();
+
+            // Text animation
+            const textContainer = document.getElementById('textContainer');
+            const loremText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
+            let currentIndex = 0;
+
+            function showNextLetter() {
+                if (currentIndex < loremText.length) {
+                    textContainer.innerHTML += loremText[currentIndex];
+                    currentIndex++;
+                }
+            }
+
+            // Interval for letter-by-letter appearance
+            const letterInterval = setInterval(showNextLetter, 50);
+
+            // Click event to show all text at once
+            document.addEventListener('click', function() {
+                clearInterval(letterInterval);
+                textContainer.innerHTML = loremText;
+                textContainer.style.whiteSpace = 'normal';
+                textContainer.style.width = 'auto';
+                textContainer.style.left = '50%';
+                textContainer.style.transform = 'translateX(-50%)';
+            });
+        });
+    </script>
+</body>
+</html>
