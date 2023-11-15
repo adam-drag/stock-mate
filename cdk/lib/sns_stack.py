@@ -11,3 +11,9 @@ class SnsStack(Stack):
 
         self.product_scheduled_topic = sns.Topic(self, "NewProductScheduled")
         self.product_persisted_topic = sns.Topic(self, "NewProductPersisted")
+
+        self.purchase_order_scheduled_topic = sns.Topic(self, "NewPurchaseOrderScheduled")
+        self.purchase_order_persisted_topic = sns.Topic(self, "NewPurchaseOrderPersisted")
+
+        self.supplier_scheduled_topic = sns.Topic(self, "NewSupplierScheduled")
+        self.supplier_persisted_topic = sns.Topic(self, "NewSupplierPersisted")

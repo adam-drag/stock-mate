@@ -132,8 +132,8 @@ create_sales_order_field_validators = {
 order_position_field_validators = {
     "product_id": product_id_validator,
     "price": price_validator,
-    "quantityOrdered": quantity_validator,
-    "deliveryDate": date_validator
+    "quantity_ordered": quantity_validator,
+    "delivery_date": date_validator
 }
 
 
@@ -145,10 +145,10 @@ def name_field_validator(name) -> bool:
     return name is not None and isinstance(name, str) and len(name) > 0
 
 
-create_product_field_validators = {
+create_product_field_validators = { # TODO different then schema...
     "name": name_field_validator,
-    "minimumStockLevel": stock_level_validator,
-    "maximumStockLevel": stock_level_validator,
+    "minimum_stock_level": stock_level_validator,
+    "maximum_stock_level": stock_level_validator,
 }
 
 create_product_required_fields = [

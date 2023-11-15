@@ -52,8 +52,8 @@ class Customer(CustomerDto):
 class OrderPositionDto:
     product_id: str
     price: float
-    quantityOrdered: int
-    deliveryDate: str
+    quantity_ordered: int
+    delivery_date: str
 
 
 @dataclass
