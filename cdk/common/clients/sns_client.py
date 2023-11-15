@@ -10,16 +10,14 @@ logger = get_logger(__name__)
 
 class SnsClient:
 
-    def __init__(self, emitter_name, sns_client=None):
+    def __init__(self, sns_client=None):
         self.sns_client = sns_client if sns_client else boto3.client('sns')
-        self.emitter_name = emitter_name
 
-    def send_sns_message(self, topic_arn, message):
+    def send_sns_message(self, topic_arn, message:str):
         try:
-            payload = json.dumps(message)
             self.sns_client.publish(
                 TopicArn=topic_arn,
-                Message=payload,
+                Message=message,
             )
         except Exception as e:
             logger.error(f"Error publishing to SNS: {e}")

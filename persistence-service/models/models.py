@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 
 
 @dataclass
@@ -9,6 +9,9 @@ class ProductDto:
     max_stock: int
     quantity: int
 
+
+default_product = ProductDto('', '', 0, 0, 0)
+default_product_dict = asdict(default_product)
 
 @dataclass
 class Product(ProductDto):

@@ -122,6 +122,25 @@ class RdsStack(Stack):
             timeout=Duration.minutes(5),
         )
 
+        intern_rds_data_retriever_lambda = aws_lambda_python_alpha.PythonFunction(
+            self, "InternRdsDataRetriever",
+            runtime=_lambda.Runtime.PYTHON_3_9,
+            entry="../intern-rds-data-retriever",
+            index="app.py",
+            handler="lambda_handler",
+            vpc=vpc.custom_vpc,
+            role=db_initializer_lambda_role,
+            environment={
+                "DB_HOST": self.db_instance.db_instance_endpoint_address,
+                "DB_PORT": self.db_instance.db_instance_endpoint_port,
+                "DB_SECRET_NAME": self.db_secret.secret_name,
+                "DB_NAME": self.db_name,
+            },
+            security_groups=[vpc.lambda_security_group],
+
+            timeout=Duration.minutes(5),
+        )
+
         # rds_instance_check_resource = cfn.CustomResource(
         #     self, 'RdsInitResource',
         #     provider=cfn.CustomResourceProvider.from_lambda(db_initializer_lambda),

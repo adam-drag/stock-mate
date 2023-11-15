@@ -38,6 +38,7 @@ def create_database(conn):
     finally:
         conn.commit()
 
+
 def get_logger(name):
     """
         Sets log level to INFO for prod.
@@ -135,6 +136,3 @@ def create_db_if_not_exists(password, username):
     if not database_exists(default_conn, os.environ['DB_NAME']):
         create_database(default_conn)
     default_conn.close()
-
-
-lambda_handler({}, {})

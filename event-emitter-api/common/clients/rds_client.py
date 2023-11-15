@@ -63,20 +63,20 @@ class RdsClient:
                 is_conn_from_pool = True
 
             with conn.cursor() as cur:
-                logger.debug(f"Executing query: {query}, params:{params}")
+                logger.debug(f"Executing query: {query}")
                 if params:
                     cur.execute(query, params)
                 else:
                     cur.execute(query)
-                logger.debug("Execute completed")
+
                 if query.strip().upper().startswith('SELECT'):
                     result = cur.fetchall()
                 else:
                     result = cur.rowcount
-                logger.debug(f"Result: {result}")
+
                 if commit and not query.strip().upper().startswith('SELECT'):
                     self.commit_transaction(conn)
-                logger.debug("Transaction commited")
+
         except Exception as e:
             logging.error(f"Query execution failed: {e}")
             self.rollback_transaction(conn)
@@ -85,7 +85,7 @@ class RdsClient:
         finally:
             if is_conn_from_pool:
                 self.connection_pool.putconn(conn)
-        logger.debug("Finished")
+
         return result
 
     def pull_rds_secret_string(self):

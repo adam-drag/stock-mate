@@ -7,14 +7,15 @@ from aws_cdk import (
     Stack, Duration,
 )
 from constructs import Construct
-from lib.vpc_stack import RdsVpcStack
-
+from lib.sns_stack import SnsStack
 from lib.rds_stack import RdsStack
+from lib.vpc_stack import RdsVpcStack
 
 
 class EventEmitterStack(Stack):
 
-    def __init__(self, scope: Construct, vpc: RdsVpcStack, rds_stack: RdsStack, id: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, vpc: RdsVpcStack, rds_stack: RdsStack, sns_stack: SnsStack, id: str,
+                 **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
         self.api = apigateway.RestApi(
@@ -22,9 +23,6 @@ class EventEmitterStack(Stack):
             rest_api_name="APIGateway-event-emitter",
             description="API Gateway for Event Emitter",
         )
-
-        # TODO Consider sns stack
-        product_scheduled_topic = sns.Topic(self, "NewProductScheduled")
 
         # TODO Consider extracting as its used across lambdas
         rds_data_crud_policy = iam.PolicyDocument(
@@ -69,7 +67,7 @@ class EventEmitterStack(Stack):
         )
 
         event_emitter_role = iam.Role(
-            self, "DbInitializerRole",
+            self, "EventEmitterRole",
             assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"),
             managed_policies=[
                 iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSLambdaBasicExecutionRole"),
@@ -99,7 +97,7 @@ class EventEmitterStack(Stack):
             handler="lambda_handler",
             role=event_emitter_role,
             environment={
-                "NEW_PRODUCT_SCHEDULED_SNS_ARN": product_scheduled_topic.topic_arn,
+                "NEW_PRODUCT_SCHEDULED_SNS_ARN": sns_stack.product_scheduled_topic.topic_arn,
                 "DB_HOST": rds_stack.db_instance.db_instance_endpoint_address,
                 "DB_PORT": rds_stack.db_instance.db_instance_endpoint_port,
                 "DB_SECRET_NAME": rds_stack.db_secret.secret_name,
