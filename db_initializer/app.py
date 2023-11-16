@@ -12,14 +12,13 @@ now = datetime.now()
 timestamp = datetime.timestamp(now)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-
 def database_exists(conn, db_name):
     try:
         with conn.cursor() as cursor:
             cursor.execute("SELECT 1 FROM pg_database WHERE datname = %s;", (db_name,))
             return cursor.fetchone() is not None
     except Exception as e:
-        logger.error(f"Error checking if database exists: {e}")
+        logger.error(f"Error checking if database exists {e}")
         raise
     finally:
         conn.commit()

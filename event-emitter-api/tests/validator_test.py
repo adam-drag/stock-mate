@@ -1,7 +1,7 @@
 import unittest
 
 from common.api_responses import INVALID_REQUEST_METHOD_RESPONSE, INVALID_JSON_PAYLOAD_RESPONSE
-from validator import validate_request, validate_create_purchase_order_payload, date_validator, order_position_validator
+from validator import validate_request, validate_create_purchase_order_payload, future_date_validator, order_position_validator
 
 
 class TestValidateRequest(unittest.TestCase):
@@ -51,7 +51,7 @@ class TestValidateRequest(unittest.TestCase):
         self.assertEqual(result.response, INVALID_JSON_PAYLOAD_RESPONSE)
 
     def test_date_validator_fail_when_date_is_none(self):
-        result = date_validator(None)
+        result = future_date_validator(None)
 
         self.assertFalse(result)
 

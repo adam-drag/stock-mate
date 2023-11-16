@@ -36,11 +36,11 @@ class RdsDomainClient(RdsClient):
     def insert_purchase_order(self, purchase_order: PurchaseOrder):
         try:
             query = """
-            INSERT INTO stock_management.purchase_order_header (id, supplier_id, order_date, delivery_date) 
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO stock_management.purchase_order_header (id, supplier_id, created_at) 
+            VALUES (%s, %s, %s)
             """
             params = (
-                purchase_order.id, purchase_order.supplier_id, purchase_order.order_date, purchase_order.delivery_date)
+                purchase_order.id, purchase_order.supplier_id, purchase_order.created_at)
             self.execute(query, params)
 
             for position in purchase_order.order_positions:
@@ -55,12 +55,12 @@ class RdsDomainClient(RdsClient):
 
     def insert_purchase_order_position(self, position, purchase_order_id):
         query = """
-        INSERT INTO stock_management.purchase_order_position (id, product_id, purchase_order_header_id, quantity_ordered, quantity_received, price) 
-        VALUES (%s, %s, %s, %s, %s, %s)
+        INSERT INTO stock_management.purchase_order_position (id, product_id, purchase_order_header_id, quantity_ordered, quantity_received, price, delivery_date) 
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
         """
         params = (
             position.id, position.product_id, purchase_order_id, position.quantity_ordered, position.quantity_received,
-            position.price)
+            position.price, position.delivery_date)
         self.execute(query, params)
 
     def insert_sales_order(self, sales_order: SalesOrder):  # TODO order positions

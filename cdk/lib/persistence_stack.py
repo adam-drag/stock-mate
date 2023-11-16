@@ -93,6 +93,7 @@ class PersistenceStack(Stack):
             environment={
                 "NEW_PRODUCT_PERSISTED_SNS_ARN": sns_stack.product_persisted_topic.topic_arn,
                 "NEW_SUPPLIER_PERSISTED_SNS_ARN": sns_stack.supplier_persisted_topic.topic_arn,
+                "NEW_PURCHASE_ORDER_PERSISTED_SNS_ARN": sns_stack.purchase_order_persisted_topic.topic_arn,
                 "DB_HOST": rds_stack.db_instance.db_instance_endpoint_address,
                 "DB_PORT": rds_stack.db_instance.db_instance_endpoint_port,
                 "DB_SECRET_NAME": rds_stack.db_secret.secret_name,
@@ -108,5 +109,9 @@ class PersistenceStack(Stack):
         )
 
         sns_stack.supplier_scheduled_topic.add_subscription(
+            sns_subscriptions.LambdaSubscription(persistence_lambda)
+        )
+
+        sns_stack.purchase_order_scheduled_topic.add_subscription(
             sns_subscriptions.LambdaSubscription(persistence_lambda)
         )

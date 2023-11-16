@@ -62,12 +62,15 @@ def lambda_handler(event, context):
         cursor = conn.cursor()
         cursor.execute(query)
         result = cursor.fetchall()
-        logger.info("Received result")
+        logger.info(f"Received result {result}")
 
         def default_serializer(obj):
             if isinstance(obj, datetime):
                 return obj.isoformat()
-            raise TypeError("Type not serializable")
+            try:
+                return datetime.strptime(obj, '%Y-%m-%d').date()
+            except:
+                return str(obj)
 
         return {
             'statusCode': 200,
@@ -79,6 +82,7 @@ def lambda_handler(event, context):
             'statusCode': 500,
             'body': f'Error: {str(e)}'
         }
+
 
 def pull_secret_string():
     secret_name = os.environ.get("DB_SECRET_NAME", "DBSecretD58955BC-UVVkK4RmuFL7")

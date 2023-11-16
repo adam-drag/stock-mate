@@ -1,0 +1,11 @@
+new purchase order:
+{
+    "supplier_id": "sup_9994886175d0",
+    "created_at": "2023-11-16",
+    "order_positions": [{
+        "product_id":"prod_7bfb5593dcf9",
+        "price":12.5,
+        "quantity_ordered": 666,
+        "delivery_date": "2023-12-01"
+    }]
+}
