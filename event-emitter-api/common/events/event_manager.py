@@ -25,6 +25,7 @@ class EventManager:
             EventType.UsageUpdateScheduled: os.environ.get("USAGE_UPDATE_SNS_ARN"),
             EventType.NewPurchaseOrderScheduled: os.environ.get("NEW_PURCHASE_ORDER_SCHEDULED_SNS_ARN"),
             EventType.NewSupplierScheduled: os.environ.get("NEW_SUPPLIER_SCHEDULED_SNS_ARN"),
+            EventType.NewSupplierPersisted: os.environ.get("NEW_SUPPLIER_PERSISTED_SNS_ARN"),
             EventType.NewCustomerScheduled: os.environ.get("NEW_CUSTOMER_SCHEDULED_SNS_ARN"),
         }
 

@@ -11,8 +11,8 @@ SUPPLIER_ID_PREFIX = "sup_"
 PRODUCT_ID_PREFIX = "prod_"
 CUSTOMER_ID_PREFIX = 'cus_'
 
-MAX_ID_LEN = 10
-MAX_PRODUCT_ID_LEN = 10
+MAX_ID_LEN = 20
+MAX_PRODUCT_ID_LEN = 20
 
 
 class ValidationResult:
@@ -62,11 +62,22 @@ def date_validator(str_date) -> bool:
     try:
         if str_date is None:
             return False
-        date = datetime.fromisoformat(str_date)
-        is_future = is_future_datetime(date)
-        if not is_future:
-            logger.error(f"Date {str_date} is not in the future")
-        return is_future
+        datetime.fromisoformat(str_date)
+        return True
+    except Exception as e:
+        logger.error(f"Failed to validate date: {str(e)}")
+        return False
+
+
+def future_date_validator(str_date) -> bool:
+    try:
+        if date_validator(str_date):
+            is_future = is_future_datetime(datetime.fromisoformat(str_date))
+            if not is_future:
+                logger.error(f"Date {str_date} is not in the future")
+            return is_future
+        else:
+            return False
     except Exception as e:
         logger.error(f"Failed to validate date: {str(e)}")
         return False
@@ -111,6 +122,7 @@ def order_positions_validator(order_positions) -> bool:
 
 create_purchase_order_required_fields = [
     "supplier_id",
+    "created_at",
     "order_positions"
 ]
 
@@ -121,6 +133,7 @@ create_sales_order_required_fields = [
 
 create_purchase_order_field_validators = {
     "supplier_id": supplier_id_validator,
+    "created_at": date_validator,
     "order_positions": order_positions_validator
 }
 
@@ -132,8 +145,8 @@ create_sales_order_field_validators = {
 order_position_field_validators = {
     "product_id": product_id_validator,
     "price": price_validator,
-    "quantityOrdered": quantity_validator,
-    "deliveryDate": date_validator
+    "quantity_ordered": quantity_validator,
+    "delivery_date": future_date_validator
 }
 
 
@@ -145,10 +158,10 @@ def name_field_validator(name) -> bool:
     return name is not None and isinstance(name, str) and len(name) > 0
 
 
-create_product_field_validators = {
+create_product_field_validators = {  # TODO different then schema...
     "name": name_field_validator,
-    "minimumStockLevel": stock_level_validator,
-    "maximumStockLevel": stock_level_validator,
+    "minimum_stock_level": stock_level_validator,
+    "maximum_stock_level": stock_level_validator,
 }
 
 create_product_required_fields = [

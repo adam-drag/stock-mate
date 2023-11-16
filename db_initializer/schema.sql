@@ -1,3 +1,5 @@
+DROP SCHEMA IF EXISTS stock_management CASCADE;
+
 CREATE SCHEMA IF NOT EXISTS stock_management;
 
 CREATE TABLE IF NOT EXISTS stock_management.product (
@@ -34,8 +36,7 @@ CREATE TABLE IF NOT EXISTS stock_management.customer (
 CREATE TABLE IF NOT EXISTS stock_management.purchase_order_header (
     id VARCHAR(20) PRIMARY KEY,
     supplier_id VARCHAR(20),
-    order_date DATE,
-    delivery_date DATE,
+    created_at DATE,
     FOREIGN KEY (supplier_id) REFERENCES stock_management.supplier(id)
 );
 
@@ -46,6 +47,7 @@ CREATE TABLE IF NOT EXISTS stock_management.purchase_order_position (
     quantity_ordered INT,
     quantity_received INT,
     price DECIMAL(10, 2),
+    delivery_date DATE,
     FOREIGN KEY (product_id) REFERENCES stock_management.product(id),
     FOREIGN KEY (purchase_order_header_id) REFERENCES stock_management.purchase_order_header(id)
 );
@@ -53,7 +55,7 @@ CREATE TABLE IF NOT EXISTS stock_management.purchase_order_position (
 CREATE TABLE IF NOT EXISTS stock_management.sales_order_header (
     id VARCHAR(20) PRIMARY KEY,
     customer_id VARCHAR(20),
-    order_date DATE,
+    created_at DATE,
     delivery_date DATE,
     FOREIGN KEY (customer_id) REFERENCES stock_management.customer(id)
 );

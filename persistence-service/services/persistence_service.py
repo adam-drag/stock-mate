@@ -27,8 +27,9 @@ class PersistenceService:
         return customer_to_persist
 
     def persist_purchase_order(self, incoming_purchase_order: PurchaseOrderDto) -> PurchaseOrder:
-        purchase_order_id = IdGenerator.generate_purchase_order_id()
-        purchase_order_to_persist = PurchaseOrder(id=purchase_order_id, **incoming_purchase_order.__dict__)
+        purchase_order_to_persist = PurchaseOrder(incoming_purchase_order.supplier_id,
+                                                  incoming_purchase_order.created_at,
+                                                  incoming_purchase_order.order_positions)
         self.db_client.insert_purchase_order(purchase_order_to_persist)
         return purchase_order_to_persist
 
