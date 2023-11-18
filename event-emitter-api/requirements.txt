@@ -2,3 +2,4 @@ boto3
 pytz
 psycopg2-binary==2.9.1
 jsonschema
+python-dateutil

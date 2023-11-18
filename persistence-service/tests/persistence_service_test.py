@@ -15,7 +15,7 @@ class TestPersistenceService(unittest.TestCase):
         service = PersistenceService(db_client=mock_db_client)
 
         incoming_product = ProductDto(name="Test Product", description="Description", safety_stock=10,
-                                      max_stock=100, quantity=50)
+                                      max_stock=100)
         service.persist_product(incoming_product)
 
         mock_db_client.insert_product.assert_called_once()

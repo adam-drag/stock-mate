@@ -1,24 +1,3 @@
-from datetime import datetime, timezone
-
-from jsonschema.exceptions import ValidationError
-
-
-def is_future_datetime(date):
-    if date.tzinfo is None and datetime.now().tzinfo is not None:
-        current_time = datetime.now().replace(tzinfo=None)
-    elif date.tzinfo is not None and datetime.now().tzinfo is None:
-        current_time = datetime.now().replace(tzinfo=timezone.utc)
-    else:
-        current_time = datetime.now()
-
-    return date > current_time
-
-
-def validate_delivery_date(validator, delivery_date, instance, schema):
-    if not is_future_datetime(datetime.fromisoformat(delivery_date)):
-        yield ValidationError(f"Delivery date {delivery_date} must be in the future.")
-
-
 product_schema = {
     "type": "object",
     "properties": {
@@ -47,10 +26,6 @@ purchase_order_position_schema = {
         "delivery_date": {
             "type": "string",
             "format": "date",
-            # "formatValidators": {
-            #     "futureDate": lambda validator, date, instance, schema: validate_delivery_date(validator, date,
-            #                                                                                    instance, schema)
-            # }
         }
     },
     "required": ["product_id", "quantity_ordered", "price", "delivery_date"],
