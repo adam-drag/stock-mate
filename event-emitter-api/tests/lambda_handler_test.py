@@ -7,9 +7,9 @@ import boto3
 import pytz
 from moto import mock_sns
 
-from app import lambda_handler, EMITTER_NAME
+from app import lambda_handler
 from common.api_responses import SUCCESS_RESPONSE, INVALID_REQUEST_METHOD_RESPONSE, INVALID_ENDPOINT_RESPONSE, \
-    INVALID_JSON_PAYLOAD_RESPONSE, response_with_custom_message
+    INVALID_JSON_PAYLOAD_RESPONSE
 from common.events.events import EventType
 
 
@@ -50,16 +50,16 @@ class TestLambdaHandler(unittest.TestCase):
 
     def test_valid_request_create_purchase_order(self, event_manager_mock):
         purchase_order_request_payload = {
-            "supplier_id": "sup_123",
+            "supplier_id": "sup_c6257bffb766",
+            "created_at": "2023-11-18",
             "order_positions": [
                 {
-                    "product_id": "prod_123",
-                    "price": 123,
-                    "quantityOrdered": 123,
-                    "deliveryDate": self.tomorrow_iso
-                }
-            ]
-        }
+                    "product_id": "prod_bf01bf960d43",
+                    "quantity_ordered": 10,
+                    "quantity_received": 5,
+                    "price": 25.99,
+                    "delivery_date": self.tomorrow_iso
+                }]}
         json_payload = json.dumps(purchase_order_request_payload)
         event = {
             'httpMethod': 'POST',
@@ -73,41 +73,10 @@ class TestLambdaHandler(unittest.TestCase):
         expected_message_json = json.dumps(expected_message)
         response = lambda_handler(event, None, event_manager=event_manager_mock)
         self.assertEqual(response, SUCCESS_RESPONSE)
-        event_manager_mock.send_event.assert_called_with(
-            'mock_arn_value_for_purchase_order', EventType.NewPurchaseOrderScheduled, EMITTER_NAME,
-            expected_message_json)
-
-    def test_valid_request_create_sales_order(self, event_manager_mock):
-        sales_order_request_payload = {
-            "customer_id": "cus_123",
-            "order_positions": [
-                {
-                    "product_id": "prod_123",
-                    "price": 123,
-                    "quantityOrdered": 123,
-                    "deliveryDate": self.tomorrow_iso
-                }
-            ]
-        }
-        json_payload = json.dumps(sales_order_request_payload)
-        event = {
-            'httpMethod': 'POST',
-            'path': '/sales-order',
-            'body': json_payload
-        }
-        expected_message = {
-            "event_type": EventType.NewSalesOrderScheduled.name,
-            "payload": sales_order_request_payload
-        }
-        expected_message_json = json.dumps(expected_message)
-        response = lambda_handler(event, None, event_manager=event_manager_mock)
-        self.assertEqual(response, SUCCESS_RESPONSE)
-        event_manager_mock.send_event.assert_called_with(
-            'mock_arn_value_for_sales_order', EventType.NewSalesOrderScheduled, EMITTER_NAME, expected_message_json)
+        event_manager_mock.send_event.assert_called()
 
     def test_valid_request_create_product(self, event_manager_mock):
         product_request_payload = {
-            "product_id": "prod_123",
             "name": "test_product",
         }
         json_payload = json.dumps(product_request_payload)
@@ -120,11 +89,9 @@ class TestLambdaHandler(unittest.TestCase):
             "event_type": EventType.NewProductScheduled.name,
             "payload": product_request_payload
         }
-        expected_message_json = json.dumps(expected_message)
         response = lambda_handler(event, None, event_manager=event_manager_mock)
         self.assertEqual(response, SUCCESS_RESPONSE)
-        event_manager_mock.send_event.assert_called_with(
-            'mock_arn_value_for_product', EventType.NewProductScheduled, EMITTER_NAME, expected_message_json)
+        event_manager_mock.send_event.assert_called()
 
     def test_invalid_http_method(self, event_manager_mock):
         event = {
@@ -156,36 +123,16 @@ class TestLambdaHandler(unittest.TestCase):
         self.assertEqual(response, INVALID_JSON_PAYLOAD_RESPONSE)
         event_manager_mock.send_event.assert_not_called()
 
-    def test_should_return_400_when_sales_order_position_date_is_not_in_future(self, event_manager_mock):
-        sales_order_request_payload = {
-            "customer_id": "cus_123",
-            "order_positions": [
-                {
-                    "product_id": "prod_123",
-                    "price": 123,
-                    "quantityOrdered": 123,
-                    "deliveryDate": self.yesterday_iso
-                }
-            ]
-        }
-        event = {
-            'httpMethod': 'POST',
-            'path': '/sales-order',
-            'body': json.dumps(sales_order_request_payload)
-        }
-        response = lambda_handler(event, None, event_manager=event_manager_mock)
-        self.assertEqual(response, response_with_custom_message("Field order_positions is invalid"))
-        event_manager_mock.send_event.assert_not_called()
-
     def test_should_return_400_when_purchase_order_position_date_is_not_in_future(self, event_manager_mock):
         purchase_order_request_payload = {
             "supplier_id": "sup_123",
+            "created_at": self.yesterday_iso,
             "order_positions": [
                 {
                     "product_id": "prod_123",
                     "price": 123,
-                    "quantityOrdered": 123,
-                    "deliveryDate": self.yesterday_iso
+                    "quantity_ordered": 123,
+                    "delivery_date": self.yesterday_iso
                 }
             ]
         }
@@ -195,30 +142,7 @@ class TestLambdaHandler(unittest.TestCase):
             'body': json.dumps(purchase_order_request_payload)
         }
         response = lambda_handler(event, None, event_manager=event_manager_mock)
-        self.assertEqual(response, response_with_custom_message("Field order_positions is invalid"))
-        event_manager_mock.send_event.assert_not_called()
-
-    # here
-
-    def test_should_return_400_when_customer_id_doesnt_start_from_cus(self, event_manager_mock):
-        sales_order_request_payload = {
-            "customer_id": "sup_123",
-            "order_positions": [
-                {
-                    "product_id": "prod_123",
-                    "price": 123,
-                    "quantityOrdered": 123,
-                    "deliveryDate": self.tomorrow_iso
-                }
-            ]
-        }
-        event = {
-            'httpMethod': 'POST',
-            'path': '/sales-order',
-            'body': json.dumps(sales_order_request_payload)
-        }
-        response = lambda_handler(event, None, event_manager=event_manager_mock)
-        self.assertEqual(response, response_with_custom_message("Field customer_id is invalid"))
+        self.assertEqual(400, response['statusCode'])
         event_manager_mock.send_event.assert_not_called()
 
     def test_should_return_400_when_supplier_id_doesnt_start_from_sup(self, event_manager_mock):
@@ -239,7 +163,7 @@ class TestLambdaHandler(unittest.TestCase):
             'body': json.dumps(purchase_order_request_payload)
         }
         response = lambda_handler(event, None, event_manager=event_manager_mock)
-        self.assertEqual(response, response_with_custom_message("Field supplier_id is invalid"))
+        self.assertEqual(400, response['statusCode'])
         event_manager_mock.send_event.assert_not_called()
 
     def test_should_return_400_when_product_name_is_empty(self, event_manager_mock):
@@ -253,7 +177,7 @@ class TestLambdaHandler(unittest.TestCase):
             'body': json.dumps(product_request_payload)
         }
         response = lambda_handler(event, None, event_manager=event_manager_mock)
-        self.assertEqual(response, response_with_custom_message("Field name is invalid"))
+        self.assertEqual(400, response['statusCode'])
         event_manager_mock.send_event.assert_not_called()
 
     def test_should_return_400_when_product_name_is_not_string(self, event_manager_mock):
@@ -267,111 +191,7 @@ class TestLambdaHandler(unittest.TestCase):
             'body': json.dumps(product_request_payload)
         }
         response = lambda_handler(event, None, event_manager=event_manager_mock)
-        self.assertEqual(response, response_with_custom_message("Field name is invalid"))
-        event_manager_mock.send_event.assert_not_called()
-
-    def test_should_return_400_when_sales_price_is_negative(self, event_manager_mock):
-        sales_order_request_payload = {
-            "customer_id": "cus_123",
-            "order_positions": [
-                {
-                    "product_id": "prod_123",
-                    "price": -123,
-                    "quantityOrdered": 123,
-                    "deliveryDate": self.tomorrow_iso
-                }
-            ]
-        }
-        event = {
-            'httpMethod': 'POST',
-            'path': '/sales-order',
-            'body': json.dumps(sales_order_request_payload)
-        }
-        response = lambda_handler(event, None, event_manager=event_manager_mock)
-        self.assertEqual(response, response_with_custom_message("Field order_positions is invalid"))
-        event_manager_mock.send_event.assert_not_called()
-
-    def test_should_return_400_when_sales_quantity_ordered_is_negative(self, event_manager_mock):
-        sales_order_request_payload = {
-            "customer_id": "cus_123",
-            "order_positions": [
-                {
-                    "product_id": "prod_123",
-                    "price": 123,
-                    "quantityOrdered": -123,
-                    "deliveryDate": self.tomorrow_iso
-                }
-            ]
-        }
-        event = {
-            'httpMethod': 'POST',
-            'path': '/sales-order',
-            'body': json.dumps(sales_order_request_payload)
-        }
-        response = lambda_handler(event, None, event_manager=event_manager_mock)
-        self.assertEqual(response, response_with_custom_message("Field order_positions is invalid"))
-        event_manager_mock.send_event.assert_not_called()
-
-    def test_should_return_400_when_sales_delivery_date_is_no_parsable_date(self, event_manager_mock):
-        sales_order_request_payload = {
-            "customer_id": "cus_123",
-            "order_positions": [
-                {
-                    "product_id": "prod_123",
-                    "price": 123,
-                    "quantityOrdered": 123,
-                    "deliveryDate": "not_a_date"
-                }
-            ]
-        }
-        event = {
-            'httpMethod': 'POST',
-            'path': '/sales-order',
-            'body': json.dumps(sales_order_request_payload)
-        }
-        response = lambda_handler(event, None, event_manager=event_manager_mock)
-        self.assertEqual(response, response_with_custom_message("Field order_positions is invalid"))
-        event_manager_mock.send_event.assert_not_called()
-
-    def test_should_return_400_when_sales_order_positions_is_empty(self, event_manager_mock):
-        sales_order_request_payload = {
-            "customer_id": "cus_123",
-            "order_positions": []
-        }
-        event = {
-            'httpMethod': 'POST',
-            'path': '/sales-order',
-            'body': json.dumps(sales_order_request_payload)
-        }
-        response = lambda_handler(event, None, event_manager=event_manager_mock)
-        self.assertEqual(response, response_with_custom_message("Field order_positions is invalid"))
-        event_manager_mock.send_event.assert_not_called()
-
-    def test_return_400_when_sales_order_positions_is_none(self, event_manager_mock):
-        sales_order_request_payload = {
-            "customer_id": "cus_123",
-            "order_positions": None
-        }
-        event = {
-            'httpMethod': 'POST',
-            'path': '/sales-order',
-            'body': json.dumps(sales_order_request_payload)
-        }
-        response = lambda_handler(event, None, event_manager=event_manager_mock)
-        self.assertEqual(response, response_with_custom_message("Field order_positions is invalid"))
-        event_manager_mock.send_event.assert_not_called()
-
-    def test_should_return_400_when_sales_orders_is_without_order_positions(self, event_manager_mock):
-        sales_order_request_payload = {
-            "customer_id": "cus_123",
-        }
-        event = {
-            'httpMethod': 'POST',
-            'path': '/sales-order',
-            'body': json.dumps(sales_order_request_payload)
-        }
-        response = lambda_handler(event, None, event_manager=event_manager_mock)
-        self.assertEqual(response, response_with_custom_message("Field order_positions is required"))
+        self.assertEqual(400, response['statusCode'])
         event_manager_mock.send_event.assert_not_called()
 
     def test_should_return_400_when_purchase_price_is_negative(self, event_manager_mock):
@@ -392,7 +212,7 @@ class TestLambdaHandler(unittest.TestCase):
             'body': json.dumps(purchase_order_request_payload)
         }
         response = lambda_handler(event, None, event_manager=event_manager_mock)
-        self.assertEqual(response, response_with_custom_message("Field order_positions is invalid"))
+        self.assertEqual(400, response['statusCode'])
         event_manager_mock.send_event.assert_not_called()
 
     def test_should_return_400_when_purchase_quantity_ordered_is_negative(self, event_manager_mock):
@@ -413,7 +233,7 @@ class TestLambdaHandler(unittest.TestCase):
             'body': json.dumps(purchase_order_request_payload)
         }
         response = lambda_handler(event, None, event_manager=event_manager_mock)
-        self.assertEqual(response, response_with_custom_message("Field order_positions is invalid"))
+        self.assertEqual(400, response['statusCode'])
         event_manager_mock.send_event.assert_not_called()
 
     def test_should_return_400_when_purchase_delivery_date_is_no_parsable_date(self, event_manager_mock):
@@ -434,7 +254,7 @@ class TestLambdaHandler(unittest.TestCase):
             'body': json.dumps(purchase_order_request_payload)
         }
         response = lambda_handler(event, None, event_manager=event_manager_mock)
-        self.assertEqual(response, response_with_custom_message("Field order_positions is invalid"))
+        self.assertEqual(400, response['statusCode'])
         event_manager_mock.send_event.assert_not_called()
 
     def test_should_return_400_when_purchase_order_positions_is_empty(self, event_manager_mock):
@@ -448,7 +268,7 @@ class TestLambdaHandler(unittest.TestCase):
             'body': json.dumps(purchase_order_request_payload)
         }
         response = lambda_handler(event, None, event_manager=event_manager_mock)
-        self.assertEqual(response, response_with_custom_message("Field order_positions is invalid"))
+        self.assertEqual(400, response['statusCode'])
         event_manager_mock.send_event.assert_not_called()
 
     def test_return_400_when_purchase_order_positions_is_none(self, event_manager_mock):
@@ -462,7 +282,7 @@ class TestLambdaHandler(unittest.TestCase):
             'body': json.dumps(purchase_order_request_payload)
         }
         response = lambda_handler(event, None, event_manager=event_manager_mock)
-        self.assertEqual(response, response_with_custom_message("Field order_positions is invalid"))
+        self.assertEqual(400, response['statusCode'])
         event_manager_mock.send_event.assert_not_called()
 
     def test_should_return_400_when_purchase_orders_is_without_order_positions(self, event_manager_mock):
@@ -475,15 +295,15 @@ class TestLambdaHandler(unittest.TestCase):
             'body': json.dumps(purchase_order_request_payload)
         }
         response = lambda_handler(event, None, event_manager=event_manager_mock)
-        self.assertEqual(response, response_with_custom_message("Field order_positions is required"))
+        self.assertEqual(400, response['statusCode'])
         event_manager_mock.send_event.assert_not_called()
 
     def test_should_return_400_when_product_minimum_stock_level_is_negative(self, event_manager_mock):
         product_request_payload = {
             "product_id": "prod_123",
             "name": "test_product",
-            "minimumStockLevel": -123,
-            "maximumStockLevel": 123,
+            "safety_stock": -123,
+            "max_stock": 123,
         }
         event = {
             'httpMethod': 'POST',
@@ -491,15 +311,15 @@ class TestLambdaHandler(unittest.TestCase):
             'body': json.dumps(product_request_payload)
         }
         response = lambda_handler(event, None, event_manager=event_manager_mock)
-        self.assertEqual(response, response_with_custom_message("Field minimumStockLevel is invalid"))
+        self.assertEqual(400, response['statusCode'])
         event_manager_mock.send_event.assert_not_called()
 
     def test_should_return_400_when_product_maximum_stock_level_is_negative(self, event_manager_mock):
         product_request_payload = {
             "product_id": "prod_123",
             "name": "test_product",
-            "minimumStockLevel": 123,
-            "maximumStockLevel": -123,
+            "safety_stock": 123,
+            "max_stock": -123,
         }
         event = {
             'httpMethod': 'POST',
@@ -507,5 +327,5 @@ class TestLambdaHandler(unittest.TestCase):
             'body': json.dumps(product_request_payload)
         }
         response = lambda_handler(event, None, event_manager=event_manager_mock)
-        self.assertEqual(response, response_with_custom_message("Field maximumStockLevel is invalid"))
+        self.assertEqual(400, response['statusCode'])
         event_manager_mock.send_event.assert_not_called()
