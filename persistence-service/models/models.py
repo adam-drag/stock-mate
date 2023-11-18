@@ -9,10 +9,9 @@ class ProductDto:
     description: str
     safety_stock: int
     max_stock: int
-    quantity: int
 
 
-default_product = ProductDto('', '', 0, 0, 0)
+default_product = ProductDto('', '', 0, 0)
 default_product_dict = asdict(default_product)
 
 
@@ -112,6 +111,28 @@ class PurchaseOrder:
             ))
             return order_positions_list
 
+
 @dataclass
 class SalesOrder(SalesOrderDto):
     id: str
+
+
+class InventoryDTO:
+    def __init__(self, product_id, purchase_order_position_id, quantity_received, received_at,
+                 created_by, updated_by='', comments=''):
+        self.product_id = product_id
+        self.purchase_order_position_id = purchase_order_position_id
+        self.quantity_received = quantity_received
+        self.received_at = received_at
+        self.created_by = created_by
+        self.updated_by = updated_by
+        self.comments = comments
+
+
+@dataclass
+class Inventory(InventoryDTO):
+    def __init__(self, id, product_id, purchase_order_position_id, quantity_received, received_at, created_by,
+                 updated_by='', comments=''):
+        super().__init__(product_id, purchase_order_position_id, quantity_received, received_at, created_by, updated_by,
+                         comments)
+        self.id = id

@@ -1,7 +1,7 @@
 import unittest
 
 from common.api_responses import INVALID_REQUEST_METHOD_RESPONSE, INVALID_JSON_PAYLOAD_RESPONSE
-from validator import validate_request, validate_create_purchase_order_payload, future_date_validator, order_position_validator
+from validation.validator import validate_request, validate_create_purchase_order_payload, future_date_validator, order_position_validator
 
 
 class TestValidateRequest(unittest.TestCase):

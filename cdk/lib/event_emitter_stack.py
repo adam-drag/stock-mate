@@ -100,6 +100,7 @@ class EventEmitterStack(Stack):
                 "NEW_PRODUCT_SCHEDULED_SNS_ARN": sns_stack.product_scheduled_topic.topic_arn,
                 "NEW_PURCHASE_ORDER_SCHEDULED_SNS_ARN": sns_stack.purchase_order_scheduled_topic.topic_arn,
                 "NEW_SUPPLIER_SCHEDULED_SNS_ARN": sns_stack.supplier_scheduled_topic.topic_arn,
+                "NEW_DELIVERY_SCHEDULED_SNS_ARN": sns_stack.delivery_scheduled_topic.topic_arn,
                 "DB_HOST": rds_stack.db_instance.db_instance_endpoint_address,
                 "DB_PORT": rds_stack.db_instance.db_instance_endpoint_port,
                 "DB_SECRET_NAME": rds_stack.db_secret.secret_name,
@@ -120,3 +121,6 @@ class EventEmitterStack(Stack):
 
         purchase_order_resource = self.api.root.add_resource("supplier")
         purchase_order_resource.add_method("POST", event_emitter_api_integration)
+
+        delivery_resource = self.api.root.add_resource("delivery")
+        delivery_resource.add_method("POST", event_emitter_api_integration)

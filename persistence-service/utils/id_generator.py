@@ -30,3 +30,7 @@ class IdGenerator:
     @staticmethod
     def generate_order_position_id():
         return "op_" + IdGenerator._generate_unique_id()
+
+    @staticmethod
+    def generate_inventory_id():
+        return "inv_" + IdGenerator._generate_unique_id()

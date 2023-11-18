@@ -1,3 +1,5 @@
+
+
 DROP SCHEMA IF EXISTS stock_management CASCADE;
 
 CREATE SCHEMA IF NOT EXISTS stock_management;
@@ -7,14 +9,20 @@ CREATE TABLE IF NOT EXISTS stock_management.product (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     safety_stock INT,
-    max_stock INT,
-    quantity INT
+    max_stock INT
 );
 
 CREATE TABLE IF NOT EXISTS stock_management.supplier (
     id VARCHAR(20) PRIMARY KEY,
     name VARCHAR(255) NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS stock_management.customer (
+    id VARCHAR(20) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    address TEXT
+);
+
 
 CREATE TABLE IF NOT EXISTS stock_management.product_supplier (
     product_id VARCHAR(20),
@@ -25,12 +33,6 @@ CREATE TABLE IF NOT EXISTS stock_management.product_supplier (
     FOREIGN KEY (product_id) REFERENCES stock_management.product(id),
     FOREIGN KEY (supplier_id) REFERENCES stock_management.supplier(id),
     PRIMARY KEY (product_id, supplier_id)
-);
-
-CREATE TABLE IF NOT EXISTS stock_management.customer (
-    id VARCHAR(20) PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    address TEXT
 );
 
 CREATE TABLE IF NOT EXISTS stock_management.purchase_order_header (
@@ -50,6 +52,21 @@ CREATE TABLE IF NOT EXISTS stock_management.purchase_order_position (
     delivery_date DATE,
     FOREIGN KEY (product_id) REFERENCES stock_management.product(id),
     FOREIGN KEY (purchase_order_header_id) REFERENCES stock_management.purchase_order_header(id)
+);
+CREATE TABLE IF NOT EXISTS stock_management.inventory (
+    id VARCHAR(20) PRIMARY KEY,
+    product_id VARCHAR(20),
+    purchase_order_position_id VARCHAR(20),
+    quantity_received INT,
+    quantity_available INT,
+    received_at DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(255),
+    updated_by VARCHAR(255),
+    comments TEXT,
+    FOREIGN KEY (product_id) REFERENCES stock_management.product(id),
+    FOREIGN KEY (purchase_order_position_id) REFERENCES stock_management.purchase_order_position(id)
 );
 
 CREATE TABLE IF NOT EXISTS stock_management.sales_order_header (

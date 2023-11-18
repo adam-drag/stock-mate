@@ -1,11 +1,20 @@
 new purchase order:
 {
-    "supplier_id": "sup_9994886175d0",
+    "supplier_id": "sup_c6257bffb766",
     "created_at": "2023-11-16",
     "order_positions": [{
-        "product_id":"prod_7bfb5593dcf9",
+        "product_id":"prod_bf01bf960d43",
         "price":12.5,
         "quantity_ordered": 666,
         "delivery_date": "2023-12-01"
     }]
+}
+
+new delivery:
+{
+    "product_id":"prod_85b2c0c66349",
+    "purchase_order_position_id":"po_cbd5b79db251",
+    "quantity_received":666,
+    "received_at": "2023-11-18",
+    "created_by":"admin"
 }

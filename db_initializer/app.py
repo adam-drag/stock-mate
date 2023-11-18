@@ -18,7 +18,7 @@ def database_exists(conn, db_name):
             cursor.execute("SELECT 1 FROM pg_database WHERE datname = %s;", (db_name,))
             return cursor.fetchone() is not None
     except Exception as e:
-        logger.error(f"Error checking if database exists {e}")
+        logger.error(f"Error checking if database exists {e}.")
         raise
     finally:
         conn.commit()

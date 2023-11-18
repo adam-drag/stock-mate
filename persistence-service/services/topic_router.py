@@ -4,7 +4,7 @@ from common.events.event_manager import EventManager
 from common.events.events import EventType
 from common.utils.logger import get_logger
 from models.models import ProductDto, CustomerDto, SupplierDto, Product, Supplier, Customer, PurchaseOrderDto, \
-    SalesOrderDto, PurchaseOrder, SalesOrder, default_product_dict
+    SalesOrderDto, PurchaseOrder, SalesOrder, default_product_dict, InventoryDTO, Inventory
 from services.persistence_service import PersistenceService
 
 EMITTER_NAME = "PersistenceService"
@@ -23,6 +23,7 @@ class TopicRouter:
             EventType.NewCustomerScheduled.name: self.handle_new_customer,
             EventType.NewPurchaseOrderScheduled.name: self.handle_new_purchase_order,
             EventType.NewSalesOrderScheduled.name: self.handle_new_sales_order,
+            EventType.NewDeliveryScheduled.name: self.handle_new_delivery
         }
 
     def handle_new_product(self, sns_message):
@@ -49,6 +50,11 @@ class TopicRouter:
         incoming_sales_order = SalesOrderDto(**sns_message)
         sales_order: SalesOrder = self.persistence_service.persist_sales_order(incoming_sales_order)
         self.event_manager.send_event(sales_order.__dict__, EventType.NewSalesOrderPersisted, EMITTER_NAME)
+
+    def handle_new_delivery(self, sns_message):
+        incoming_inventory = InventoryDTO(**sns_message)
+        inventory: Inventory = self.persistence_service.persist_inventory(incoming_inventory)
+        self.event_manager.send_event(inventory.__dict__, EventType.NewDeliveryPersisted, EMITTER_NAME)
 
     def route(self, event):
         for record in event['Records']:
