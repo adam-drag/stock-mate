@@ -3,8 +3,6 @@ import logging
 import os
 
 import boto3
-import psycopg2
-from psycopg2 import pool
 
 from common.utils.logger import get_logger
 
@@ -21,7 +19,8 @@ class RdsClient:
             secret_dict = json.loads(secret_string)
             username = secret_dict.get("username")
             password = secret_dict.get("password")
-            self.connection_pool = psycopg2.pool.SimpleConnectionPool(
+            from psycopg2 import pool
+            self.connection_pool = pool.SimpleConnectionPool(
                 os.environ.get('MIN_DB_CONNECTIONS', DEFAULT_MIN_DB_CONNECTIONS),
                 os.environ.get('MAX_DB_CONNECTIONS', DEFAULT_MAX_DB_CONNECTIONS),
                 host=os.environ['DB_HOST'],

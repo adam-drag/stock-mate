@@ -11,16 +11,15 @@ DEFAULT_MAX_DB_CONNECTIONS = 10
 
 logger = get_logger(__name__)
 
-
 class RdsClient:
 
     def __init__(self):
         try:
-            from psycopg2 import pool # Dirty hack to make unit tests in tox work
             secret_string = self.pull_rds_secret_string()
             secret_dict = json.loads(secret_string)
             username = secret_dict.get("username")
             password = secret_dict.get("password")
+            from psycopg2 import pool
             self.connection_pool = pool.SimpleConnectionPool(
                 os.environ.get('MIN_DB_CONNECTIONS', DEFAULT_MIN_DB_CONNECTIONS),
                 os.environ.get('MAX_DB_CONNECTIONS', DEFAULT_MAX_DB_CONNECTIONS),
