@@ -1,5 +1,4 @@
 import json
-import os
 import traceback
 from typing import Callable
 
@@ -8,9 +7,10 @@ from common.api_responses import FAILED_TO_PUBLISH_TO_SNS_RESPONSE, SUCCESS_RESP
 from common.events.event_manager import EventManager
 from common.events.events import EventType
 from common.utils.logger import get_logger
-from validator import validate_request, validate_create_purchase_order_payload, validate_create_sales_order_payload, \
+from validation.validator import validate_request, validate_create_purchase_order_payload, \
+    validate_create_sales_order_payload, \
     ValidationResult, validate_create_product_payload, validate_create_customer_payload, \
-    validate_create_supplier_payload
+    validate_create_supplier_payload, validate_inventor
 
 
 class EventConfig():
@@ -20,7 +20,6 @@ class EventConfig():
     def __init__(self, event_type: EventType, validator: Callable[[str], ValidationResult]):
         self.event_type = event_type
         self.validator = validator
-
 
 
 EMITTER_NAME = 'EVENT_EMITTER'
@@ -71,8 +70,7 @@ def lazy_load_path_to_event_config_map():
         '/product': EventConfig(EventType.NewProductScheduled, validate_create_product_payload),
         '/customer': EventConfig(EventType.NewCustomerScheduled, validate_create_customer_payload),
         '/supplier': EventConfig(EventType.NewSupplierScheduled, validate_create_supplier_payload),
-        '/delivery': EventConfig(EventType.NewDeliveryScheduled,
-                                 lambda x: ValidationResult(False, NOT_SUPPORTED_YET_RESPONSE)),
+        '/delivery': EventConfig(EventType.NewDeliveryScheduled, validate_inventor),
         '/dispatch': EventConfig(EventType.NewDispatchRequested,
                                  lambda x: ValidationResult(False, NOT_SUPPORTED_YET_RESPONSE)),
     }
